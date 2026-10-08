@@ -524,9 +524,9 @@ html, html body { color-scheme: var(--c-scheme); background: var(--c-ground); co
     display: flex; flex-direction: column; align-items: flex-end; gap: var(--s-12); pointer-events: none;
     opacity: 0; visibility: hidden; transform: translateY(calc(100% + var(--s-48)));
     transition: transform var(--dur-settle) var(--ease-leave), opacity var(--dur-quick) var(--ease-leave), visibility 0s linear var(--dur-settle); }
-  html[data-bar="folded"]:not([data-foot-in]) .p5-fold { opacity: 1; visibility: visible; transform: none;
+  html[data-bar="folded"]:not([data-aside]) .p5-fold { opacity: 1; visibility: visible; transform: none;
     transition: transform var(--dur-settle) var(--ease-arrive), opacity var(--dur-quick) var(--ease-arrive), visibility 0s; }
-  html[data-bar="folded"]:not([data-foot-in]) .p5-fold__btn { pointer-events: auto; }
+  html[data-bar="folded"]:not([data-aside]) .p5-fold__btn { pointer-events: auto; }
   .p5-fold__btn, .p5-fold__menu { color: var(--c-type); border: var(--line-w) solid var(--c-line);
     background: color-mix(in srgb, var(--glass-ground) var(--glass-veil), transparent);
     -webkit-backdrop-filter: var(--glass-filter); backdrop-filter: var(--glass-filter); }
@@ -539,18 +539,19 @@ html, html body { color-scheme: var(--c-scheme); background: var(--c-ground); co
   .p5-fold__menu { width: min(300px, calc(100vw - 2 * var(--gutter))); box-sizing: border-box; padding: var(--s-24); border-radius: var(--r-6);
     display: flex; flex-direction: column; gap: var(--s-24); transform-origin: 100% 100%;
     opacity: 0; visibility: hidden; transform: translateY(8px) scale(0.98); pointer-events: none;
-    transition: opacity var(--dur-quick) var(--ease-leave) 0.24s, transform var(--dur-quick) var(--ease-leave) 0.24s, visibility 0s linear calc(0.24s + var(--dur-quick)); }
+    transition: opacity var(--dur-quick) var(--ease-leave), transform var(--dur-quick) var(--ease-leave), visibility 0s linear var(--dur-quick); }
+  /* the hover bridge: 16 px of forgiveness around the menu and across the gap to the button, live only while it is open */
+  .p5-fold__menu { position: relative; }
+  .p5-fold__menu::before { content: ""; position: absolute; z-index: -1; inset: -16px -16px calc(-1 * (var(--s-12) + 16px)) -16px; }
   .p5-fold__menu nav { display: flex; flex-direction: column; gap: var(--s-4, 4px); }
   .p5-fold__menu nav a { color: var(--c-type); text-decoration: none; font-weight: 600; font-size: var(--t-title, 20px); line-height: 1.3; padding-block: var(--s-4, 4px); }
   .p5-fold__menu nav a:hover, .p5-fold__menu nav a:focus-visible, .p5-fold__menu nav a[aria-current] { text-decoration: underline; text-underline-offset: 0.2em; }
   .p5-fold__menu .p-modes { display: inline-flex; align-self: flex-start; }
-  /* hover opens it with a short intent delay and closes it with a grace period; keyboard focus and a click pin it */
-  @media (hover: hover) and (pointer: fine) {
-    html[data-bar="folded"]:not([data-foot-in]) .p5-fold:not([data-dismissed]):hover .p5-fold__menu { opacity: 1; visibility: visible; transform: none; pointer-events: auto;
-      transition: opacity var(--dur-quick) var(--ease-arrive) 0.06s, transform var(--dur-quick) var(--ease-arrive) 0.06s, visibility 0s 0.06s; } }
-  html[data-bar="folded"]:not([data-foot-in]) .p5-fold:not([data-dismissed]):has(.p5-fold__btn:focus-visible) .p5-fold__menu,
-  html[data-bar="folded"]:not([data-foot-in]) .p5-fold:not([data-dismissed]) .p5-fold__menu:focus-within,
-  html[data-bar="folded"]:not([data-foot-in]) .p5-fold[data-pinned] .p5-fold__menu { opacity: 1; visibility: visible; transform: none; pointer-events: auto;
+  /* the script opens it on hover after 60 ms and closes it 450 ms after the pointer leaves; keyboard focus shows it; a click pins it */
+  html[data-bar="folded"]:not([data-aside]) .p5-fold:not([data-dismissed]):has(.p5-fold__btn:focus-visible) .p5-fold__menu,
+  html[data-bar="folded"]:not([data-aside]) .p5-fold:not([data-dismissed]) .p5-fold__menu:focus-within,
+  html[data-bar="folded"]:not([data-aside]) .p5-fold[data-open]:not([data-dismissed]) .p5-fold__menu,
+  html[data-bar="folded"]:not([data-aside]) .p5-fold[data-pinned] .p5-fold__menu { opacity: 1; visibility: visible; transform: none; pointer-events: auto;
     transition: opacity var(--dur-quick) var(--ease-arrive), transform var(--dur-quick) var(--ease-arrive), visibility 0s; }
   @media (prefers-reduced-motion: reduce) { .p-bar, .p5-fold, .p5-fold__menu { transition: none !important; } .p5-fold, .p5-fold__menu { transform: none !important; } }
 
@@ -1407,11 +1408,13 @@ html, html body { color-scheme: var(--c-scheme); background: var(--c-ground); co
   if (!bar || !fold) return;
   var btn = fold.querySelector('.p5-fold__btn'), fine = window.matchMedia('(hover: hover) and (pointer: fine)');
   var state = 'top', last = window.scrollY, acc = 0, queued = false;
+  var openT = 0, closeT = 0;
+  function shut() { clearTimeout(openT); clearTimeout(closeT); fold.removeAttribute('data-open'); }
   function unpin() { if (fold.hasAttribute('data-pinned')) { fold.removeAttribute('data-pinned'); btn.setAttribute('aria-expanded', 'false'); } }
   function set(s) {
     if (s === state) return; state = s;
     if (s === 'top') root.removeAttribute('data-bar'); else root.setAttribute('data-bar', s);
-    if (s !== 'folded') { unpin(); if (fold.contains(document.activeElement)) document.activeElement.blur(); }
+    if (s !== 'folded') { unpin(); shut(); if (fold.contains(document.activeElement)) document.activeElement.blur(); }
   }
   function read() {
     queued = false;
@@ -1425,11 +1428,22 @@ html, html body { color-scheme: var(--c-scheme); background: var(--c-ground); co
   }
   window.addEventListener('scroll', function () { if (!queued) { queued = true; requestAnimationFrame(read); } }, { passive: true });
   if (window.scrollY > 2 * bar.offsetHeight) set('folded');
-  // the button steps aside while the footer's own wordmark is in view
-  var end = document.querySelector('.p-foot__end');
-  if (end && 'IntersectionObserver' in window) new IntersectionObserver(function (es) {
-    es.forEach(function (e) { if (e.isIntersecting) { root.setAttribute('data-foot-in', ''); unpin(); } else root.removeAttribute('data-foot-in'); });
-  }).observe(end);
+  // keep-clear: the button steps aside while a mark crosses its corner (16 px clear of the button): the footer's wordmark,
+  // the robots, and anything marked data-keep-clear. One rule, not a list of special cases (R-INT-06)
+  var clear = document.querySelectorAll('.p-foot__end, .p-cta__robot, .p5-hero__robot, [data-keep-clear]'), crossing = new Set(), io = null;
+  function corner() {
+    if (io) io.disconnect();
+    if (!('IntersectionObserver' in window) || !clear.length) return;
+    var cs = getComputedStyle(fold), r = parseFloat(cs.right) || 0, b = parseFloat(cs.bottom) || 0, size = btn.offsetWidth || 96, pad = 16;
+    var top = window.innerHeight - b - size - pad, left = window.innerWidth - r - size - pad;
+    io = new IntersectionObserver(function (es) {
+      es.forEach(function (e) { if (e.isIntersecting) crossing.add(e.target); else crossing.delete(e.target); });
+      if (crossing.size) { root.setAttribute('data-aside', ''); unpin(); shut(); } else root.removeAttribute('data-aside');
+    }, { rootMargin: -Math.max(0, top) + 'px ' + -Math.max(0, r - pad) + 'px ' + -Math.max(0, b - pad) + 'px ' + -Math.max(0, left) + 'px' });
+    crossing.clear(); clear.forEach(function (el) { io.observe(el); });
+  }
+  corner();
+  var rz = 0; window.addEventListener('resize', function () { clearTimeout(rz); rz = setTimeout(corner, 150); });
   // with a mouse, a click pins the menu open (hover already previews it); on touch, a tap opens the menu sheet
   document.addEventListener('click', function (e) {
     if (btn.contains(e.target)) {
@@ -1442,9 +1456,21 @@ html, html body { color-scheme: var(--c-scheme); background: var(--c-ground); co
   }, true);
   fold.addEventListener('keydown', function (e) {
     if (e.key !== 'Escape') return;
-    unpin(); fold.setAttribute('data-dismissed', ''); btn.focus();
+    unpin(); shut(); fold.setAttribute('data-dismissed', ''); btn.focus();
   });
-  fold.addEventListener('mouseleave', function () { fold.removeAttribute('data-dismissed'); });
+  // hover discipline: open after a 60 ms pause, stay open while the pointer is on the button, the menu or the bridge,
+  // and close only 450 ms after it leaves; coming back in time cancels the close
+  function mouse(e) { return e.pointerType === 'mouse' || e.pointerType === 'pen'; }
+  fold.addEventListener('pointerenter', function (e) {
+    if (!mouse(e)) return;
+    clearTimeout(closeT); fold.removeAttribute('data-dismissed');
+    if (!fold.hasAttribute('data-open')) { clearTimeout(openT); openT = setTimeout(function () { fold.setAttribute('data-open', ''); }, 60); }
+  });
+  fold.addEventListener('pointerleave', function (e) {
+    if (!mouse(e)) return;
+    clearTimeout(openT); clearTimeout(closeT);
+    closeT = setTimeout(function () { fold.removeAttribute('data-open'); }, 450);
+  });
   fold.addEventListener('focusout', function (e) { if (!fold.contains(e.relatedTarget)) fold.removeAttribute('data-dismissed'); });
 })();
 </script>
