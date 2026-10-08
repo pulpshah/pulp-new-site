@@ -502,6 +502,13 @@ html, html body { color-scheme: var(--c-scheme); background: var(--c-ground); co
   .p-cta[data-size="climax"] .p-cta__text > p { max-width: var(--col); }
 }
 
+  /* photo tilt (R-PHO-09): the frame stays put; the picture leans inside it and a light follows the cursor */
+  .p5-tilt { perspective: 1400px; }
+  .p5-figure__img { position: relative; }
+  .p5-sheen { position: absolute; inset: 0; pointer-events: none; opacity: 0; mix-blend-mode: soft-light;
+    background: radial-gradient(circle at var(--lx, 50%) var(--ly, 50%), color-mix(in srgb, var(--c-photo-type) 70%, transparent) 0%, transparent 62%); }
+  @media (prefers-reduced-motion: reduce) { .p5-sheen { display: none; } }
+
 @layer components {
   :root { --p5-ground: var(--c-ground); }
   .p-band, .p5-hero, .p-cta { --p5-ground: var(--c-band); }
@@ -1176,6 +1183,42 @@ html, html body { color-scheme: var(--c-scheme); background: var(--c-ground); co
       count.textContent = q ? n + (n === 1 ? ' result' : ' results') : '';
     });
   }
+})();
+
+/* photo tilt (R-PHO-09): on a fine pointer with hover, a photo leans away from the cursor inside its frame and a soft
+   light follows the cursor; it eases in slowly and settles flat when the pointer leaves. Photos only. */
+(function () {
+  var fine = window.matchMedia('(hover: hover) and (pointer: fine)'), still = window.matchMedia('(prefers-reduced-motion: reduce)');
+  Array.prototype.slice.call(document.querySelectorAll('[data-photo]')).forEach(function (box) {
+    var img = box.querySelector('img'); if (!img) return;
+    var small = box.classList.contains('p5-figure');
+    var clip = small ? box.querySelector('.p5-figure__img') : box;
+    var AMP = small ? 3 : 1, SHIFT = small ? 6 : 12;
+    var sheen = document.createElement('span'); sheen.className = 'p5-sheen'; sheen.setAttribute('aria-hidden', 'true');
+    img.insertAdjacentElement('afterend', sheen); clip.classList.add('p5-tilt');
+    var zone = box.closest('.p5-hero, .p-cta') || box;
+    var t = { x: 0, y: 0, o: 0 }, c = { x: 0, y: 0, o: 0 }, raf = null;
+    function clamp(v) { return Math.max(-1, Math.min(1, v)); }
+    function step() {
+      raf = null;
+      c.x += (t.x - c.x) * 0.06; c.y += (t.y - c.y) * 0.06; c.o += (t.o - c.o) * 0.06;
+      var m = Math.hypot(c.x, c.y);
+      img.style.translate = (-c.x * SHIFT).toFixed(2) + 'px ' + (-c.y * SHIFT * 0.75).toFixed(2) + 'px';
+      img.style.rotate = m > 0.001 ? (-c.y).toFixed(3) + ' ' + c.x.toFixed(3) + ' 0 ' + (m * AMP).toFixed(3) + 'deg' : 'none';
+      img.style.scale = (1 + 0.04 * c.o).toFixed(4);
+      sheen.style.setProperty('--lx', (50 + c.x * 45).toFixed(1) + '%'); sheen.style.setProperty('--ly', (50 + c.y * 45).toFixed(1) + '%');
+      sheen.style.opacity = c.o.toFixed(3);
+      if (Math.abs(t.x - c.x) + Math.abs(t.y - c.y) + Math.abs(t.o - c.o) > 0.002) raf = requestAnimationFrame(step);
+      else if (!t.o) { c.x = c.y = c.o = 0; img.style.translate = img.style.rotate = img.style.scale = ''; sheen.style.opacity = '0'; }
+    }
+    function kick() { if (!raf) raf = requestAnimationFrame(step); }
+    zone.addEventListener('pointermove', function (e) {
+      if (!fine.matches || still.matches || e.pointerType === 'touch') return;
+      var r = clip.getBoundingClientRect();
+      t.x = clamp((e.clientX - r.left) / r.width * 2 - 1); t.y = clamp((e.clientY - r.top) / r.height * 2 - 1); t.o = 1; kick();
+    }, { passive: true });
+    zone.addEventListener('pointerleave', function () { t.x = 0; t.y = 0; t.o = 0; kick(); });
+  });
 })();
 
   /* hover reels: follow on fine pointers with hover; inline on touch or reduced motion */
