@@ -1302,6 +1302,7 @@ html, html body { color-scheme: var(--c-scheme); background: var(--c-ground); co
     var AMP = small ? 3 : 1, SHIFT = small ? 6 : 12;
     var sheen = document.createElement('span'); sheen.className = 'p5-sheen'; sheen.setAttribute('aria-hidden', 'true');
     var zone = box.closest('.p5-hero, .p-cta') || box;
+    var glass = zone !== box ? zone.querySelector('.p5-glass') : null;
     if (zone !== box) { sheen.classList.add('p5-sheen--over'); box.insertAdjacentElement('afterend', sheen); }
     else img.insertAdjacentElement('afterend', sheen);
     clip.classList.add('p5-tilt');
@@ -1315,7 +1316,14 @@ html, html body { color-scheme: var(--c-scheme); background: var(--c-ground); co
       img.style.rotate = m > 0.001 ? (-c.y).toFixed(3) + ' ' + c.x.toFixed(3) + ' 0 ' + (m * AMP).toFixed(3) + 'deg' : 'none';
       img.style.scale = (1 + 0.04 * c.o).toFixed(4);
       sheen.style.setProperty('--lx', (50 + c.x * 45).toFixed(1) + '%'); sheen.style.setProperty('--ly', (50 + c.y * 45).toFixed(1) + '%');
-      sheen.style.opacity = c.o.toFixed(3); if (zone !== box) zone.style.setProperty('--p5-lit', c.o.toFixed(3));
+      sheen.style.opacity = c.o.toFixed(3);
+      if (glass) {   // the glass follows the light that reaches the robot: full with the light on it, gone as the light moves away
+        var sr = sheen.getBoundingClientRect(), gr = glass.getBoundingClientRect();
+        var lx = sr.left + sr.width * (50 + c.x * 45) / 100, ly = sr.top + sr.height * (50 + c.y * 45) / 100;
+        var reach = 0.496 * Math.max(Math.hypot(lx - sr.left, ly - sr.top), Math.hypot(sr.right - lx, ly - sr.top), Math.hypot(lx - sr.left, sr.bottom - ly), Math.hypot(sr.right - lx, sr.bottom - ly));
+        var near = Math.max(0, Math.min(1, 1 - (Math.hypot(gr.left + gr.width / 2 - lx, gr.top + gr.height / 2 - ly) - gr.width * 0.2) / reach));
+        zone.style.setProperty('--p5-lit', (c.o * near * near).toFixed(3));
+      }
       if (Math.abs(t.x - c.x) + Math.abs(t.y - c.y) + Math.abs(t.o - c.o) > 0.002) raf = requestAnimationFrame(step);
       else if (!t.o) { c.x = c.y = c.o = 0; img.style.translate = img.style.rotate = img.style.scale = ''; sheen.style.opacity = '0'; zone.style.removeProperty('--p5-lit'); }
     }
