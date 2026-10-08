@@ -515,6 +515,45 @@ html, html body { color-scheme: var(--c-scheme); background: var(--c-ground); co
                              mask-image: linear-gradient(var(--grad-feature-dir), transparent 0%, transparent calc(var(--grad-feature-solid) - 4%), #000 calc(var(--grad-feature-solid) + 18%)); }
   @media (prefers-reduced-motion: reduce) { .p5-sheen { display: none; } }
 
+  /* the bar, two states (R-INT-06): the whole bar at the top of a page; scrolling down folds it into a round wordmark
+     button at the bottom right, and a short scroll up brings the whole bar back. Glass for both (R-GLS-04). */
+  .p-bar { transition: transform var(--dur-settle) var(--ease-arrive); }
+  html[data-bar="folded"] .p-bar { transform: translateY(calc(-100% - 2px)); transition-timing-function: var(--ease-leave); }
+  .p5-fold { position: fixed; z-index: var(--z-bar); inset-inline-end: max(var(--gutter), env(safe-area-inset-right));
+    inset-block-end: max(var(--s-24), calc(env(safe-area-inset-bottom) + var(--s-12)));
+    display: flex; flex-direction: column; align-items: flex-end; gap: var(--s-12); pointer-events: none;
+    opacity: 0; visibility: hidden; transform: translateY(calc(100% + var(--s-48)));
+    transition: transform var(--dur-settle) var(--ease-leave), opacity var(--dur-quick) var(--ease-leave), visibility 0s linear var(--dur-settle); }
+  html[data-bar="folded"]:not([data-foot-in]) .p5-fold { opacity: 1; visibility: visible; transform: none;
+    transition: transform var(--dur-settle) var(--ease-arrive), opacity var(--dur-quick) var(--ease-arrive), visibility 0s; }
+  html[data-bar="folded"]:not([data-foot-in]) .p5-fold__btn { pointer-events: auto; }
+  .p5-fold__btn, .p5-fold__menu { color: var(--c-type); border: var(--line-w) solid var(--c-line);
+    background: color-mix(in srgb, var(--glass-ground) var(--glass-veil), transparent);
+    -webkit-backdrop-filter: var(--glass-filter); backdrop-filter: var(--glass-filter); }
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .p5-fold__btn, .p5-fold__menu { background: color-mix(in srgb, var(--glass-ground) var(--glass-veil-fallback), transparent); } }
+  /* 96 px holds the wordmark at 72 px with half its height clear on every side (R-LOGO-02) */
+  .p5-fold__btn { width: 96px; height: 96px; border-radius: 50%; padding: 0; display: grid; place-items: center; cursor: pointer; }
+  .p5-fold__btn svg { width: 72px; height: auto; aspect-ratio: 336 / 72; overflow: visible; display: block; }
+  .p5-fold__btn:focus-visible { outline: var(--focus-w, 2px) solid var(--c-focus, currentColor); outline-offset: 3px; }
+  .p5-fold__menu { width: min(300px, calc(100vw - 2 * var(--gutter))); box-sizing: border-box; padding: var(--s-24); border-radius: var(--r-6);
+    display: flex; flex-direction: column; gap: var(--s-24); transform-origin: 100% 100%;
+    opacity: 0; visibility: hidden; transform: translateY(8px) scale(0.98); pointer-events: none;
+    transition: opacity var(--dur-quick) var(--ease-leave) 0.24s, transform var(--dur-quick) var(--ease-leave) 0.24s, visibility 0s linear calc(0.24s + var(--dur-quick)); }
+  .p5-fold__menu nav { display: flex; flex-direction: column; gap: var(--s-4, 4px); }
+  .p5-fold__menu nav a { color: var(--c-type); text-decoration: none; font-weight: 600; font-size: var(--t-title, 20px); line-height: 1.3; padding-block: var(--s-4, 4px); }
+  .p5-fold__menu nav a:hover, .p5-fold__menu nav a:focus-visible, .p5-fold__menu nav a[aria-current] { text-decoration: underline; text-underline-offset: 0.2em; }
+  .p5-fold__menu .p-modes { display: inline-flex; align-self: flex-start; }
+  /* hover opens it with a short intent delay and closes it with a grace period; keyboard focus and a click pin it */
+  @media (hover: hover) and (pointer: fine) {
+    html[data-bar="folded"]:not([data-foot-in]) .p5-fold:not([data-dismissed]):hover .p5-fold__menu { opacity: 1; visibility: visible; transform: none; pointer-events: auto;
+      transition: opacity var(--dur-quick) var(--ease-arrive) 0.06s, transform var(--dur-quick) var(--ease-arrive) 0.06s, visibility 0s 0.06s; } }
+  html[data-bar="folded"]:not([data-foot-in]) .p5-fold:not([data-dismissed]):has(.p5-fold__btn:focus-visible) .p5-fold__menu,
+  html[data-bar="folded"]:not([data-foot-in]) .p5-fold:not([data-dismissed]) .p5-fold__menu:focus-within,
+  html[data-bar="folded"]:not([data-foot-in]) .p5-fold[data-pinned] .p5-fold__menu { opacity: 1; visibility: visible; transform: none; pointer-events: auto;
+    transition: opacity var(--dur-quick) var(--ease-arrive), transform var(--dur-quick) var(--ease-arrive), visibility 0s; }
+  @media (prefers-reduced-motion: reduce) { .p-bar, .p5-fold, .p5-fold__menu { transition: none !important; } .p5-fold, .p5-fold__menu { transform: none !important; } }
+
 @layer components {
   :root { --p5-ground: var(--c-ground); }
   .p-band, .p5-hero, .p-cta { --p5-ground: var(--c-band); }
@@ -870,6 +909,7 @@ html, html body { color-scheme: var(--c-scheme); background: var(--c-ground); co
     </div>
   </div>
 </header>
+<div class="p5-fold" data-fold><div class="p5-fold__menu" role="group" aria-label="Menu"><nav aria-label="Main, folded"><a href="research.html">Research</a><a href="lab.html">Laboratory</a><a href="platform.html">Platform</a><a href="foundation.html">Foundation</a><a href="about.html#do">What we do</a><a href="about.html">Company</a></nav><fieldset class="p-modes" data-modes><legend>Color mode</legend><label><input type="radio" name="mode-fold" value="light">Light</label><label><input type="radio" name="mode-fold" value="dark">Dark</label><label><input type="radio" name="mode-fold" value="mono">Mono</label></fieldset><div><a class="p-btn" href="#contact" data-open-contact aria-haspopup="dialog">Get in touch</a></div></div><button type="button" class="p5-fold__btn" aria-label="Pulp menu" aria-haspopup="true" aria-expanded="false" aria-controls="menu" data-open-menu><svg viewBox="0 0 336 72" width="88" aria-hidden="true" focusable="false"><path d="M0 34.2594C0 25.0345 0.147994 18.6957 0.147994 9.47083C0.147994 2.45887 2.67722 0.0528935 9.94206 0.0400275C19.8303 0.0400275 29.7186 -0.0500344 39.6068 0.0400275C47.2195 0.0606495 54.5819 2.64239 60.4041 7.33295C66.2263 12.0235 70.137 18.5237 71.451 25.6948C75.1238 44.106 59.8811 58.6446 40.2795 59.0563C38.1539 59.0563 19.8034 58.8376 18.754 59.2235C17.4894 60.1885 5.46207 72.0896 3.18845 71.9995C0.914823 71.9094 0.376689 68.7701 0.376689 68.7701C0.376689 68.7701 0 66.1069 0 64.7817C0 55.5568 0 46.3447 0 37.1327V34.2594Z" fill="currentColor"/><path d="M114.739 0.013698H140.167C141.169 0.013698 142.17 0.013698 143.172 0.013698C147.269 0.255015 149.863 2.74441 149.902 6.9103C149.992 14.3784 150.069 20.9447 149.902 28.4001C149.786 33.7472 149.991 39.2467 148.823 44.3906C146.981 52.6334 142.205 59.9473 135.367 64.9994C128.528 70.0514 120.082 72.5051 111.567 71.9134C103.171 71.3023 95.2552 67.8039 89.1939 62.0251C83.1325 56.2463 79.3076 48.5515 78.3825 40.2755C77.7403 34.4966 78.1128 28.6161 78.0614 22.7864C78.0614 17.9601 77.9587 13.1337 78.0614 8.32009C78.0614 2.56659 80.6299 0.0645307 86.3062 0.0264281C95.7453 -0.0243754 105.236 0.013698 114.739 0.013698Z" fill="currentColor"/><path d="M200.716 20.156C200.701 16.2899 200.686 12.4215 200.686 8.55356C200.647 2.54191 196.67 0 187.443 0H170.164C159.996 0.0381289 156.313 2.41482 156.313 9.07466C156.274 18.2637 156.078 54.2193 156 63.0143C156 70.8435 157.822 72 169.713 72H211.167C212.969 72 218.513 71.9746 220.296 71.8475C225.233 71.4789 227.603 70.1317 227.78 66.9289C228.073 61.7179 228.073 56.4943 227.78 51.296C227.584 48.1567 225.37 46.8349 220.531 46.5172C215.462 46.2483 210.371 46.1889 205.29 46.3393C201.607 46.5045 200.686 45.7165 200.686 43.3525C200.766 36.5829 200.753 29.8173 200.728 23.0511L200.716 20.156Z" fill="currentColor"/><path d="M234 34.2594C234 25.0345 234.148 18.6957 234.148 9.47083C234.148 2.45887 236.677 0.0528935 243.942 0.0400275C253.83 0.0400275 263.719 -0.0500344 273.607 0.0400275C281.22 0.0606495 288.582 2.64239 294.404 7.33295C300.226 12.0235 304.137 18.5237 305.451 25.6948C309.124 44.106 293.881 58.6446 274.28 59.0563C272.154 59.0563 253.803 58.8376 252.754 59.2235C251.489 60.1885 239.462 72.0896 237.188 71.9995C234.915 71.9094 234.377 68.7701 234.377 68.7701C234.377 68.7701 234 66.1069 234 64.7817C234 55.5568 234 46.3447 234 37.1327V34.2594Z" fill="currentColor"/><path d="M315.989 12V1.36778H312V0H321.516V1.36778H317.527V12H315.989Z" fill="currentColor"/><path d="M323.391 12V0H325.953L329.686 9.93921H329.705L333.493 0H336V12H334.444L334.481 1.03951H334.444L330.272 12H329.028L324.855 1.03951H324.819L324.855 12H323.391Z" fill="currentColor"/></svg></button></div>
 
 <main id="main" tabindex="-1">
 
@@ -970,8 +1010,8 @@ html, html body { color-scheme: var(--c-scheme); background: var(--c-ground); co
   <div class="p-wrap">
     <div class="p-foot__grid"><nav aria-label="Research"><span class="p-label">Research</span><a href="research.html#study">What we study</a><a href="research.html#upcoming">Coming up</a><a href="research.html#record">The record</a><a href="research.html#stories">Data stories</a></nav><nav aria-label="Laboratory"><span class="p-label">Laboratory</span><a href="pulp101.html">Pulp101</a><a href="lab.html#also">Thinkwell</a><a href="lab.html#also">typodojo</a><a href="lab.html#also">Suade</a><a href="loosethreads.html">Loosethreads</a></nav><nav aria-label="Platform"><span class="p-label">Platform</span><a href="platform.html#api">Pulp API</a><a href="platform.html#mcp">MCP</a><a href="https://pulp.com.ai/docs">Docs</a></nav><nav aria-label="Foundation"><span class="p-label">Foundation</span><a href="foundation.html">Overview</a><a href="foundation.html#apprenticeship">Apprenticeship</a></nav><nav aria-label="Company"><span class="p-label">Company</span><a href="about.html">About</a><a href="about.html#people">The people</a><a href="#contact">Contact</a></nav></div>
     <div class="p-foot__end">
-      <div class="p-stack" style="gap: var(--s-8)"><span class="p-mark" style="min-height: auto"><svg viewBox="0 0 336 72" width="96" aria-hidden="true" focusable="false"><path d="M0 34.2594C0 25.0345 0.147994 18.6957 0.147994 9.47083C0.147994 2.45887 2.67722 0.0528935 9.94206 0.0400275C19.8303 0.0400275 29.7186 -0.0500344 39.6068 0.0400275C47.2195 0.0606495 54.5819 2.64239 60.4041 7.33295C66.2263 12.0235 70.137 18.5237 71.451 25.6948C75.1238 44.106 59.8811 58.6446 40.2795 59.0563C38.1539 59.0563 19.8034 58.8376 18.754 59.2235C17.4894 60.1885 5.46207 72.0896 3.18845 71.9995C0.914823 71.9094 0.376689 68.7701 0.376689 68.7701C0.376689 68.7701 0 66.1069 0 64.7817C0 55.5568 0 46.3447 0 37.1327V34.2594Z" fill="currentColor"/><path d="M114.739 0.013698H140.167C141.169 0.013698 142.17 0.013698 143.172 0.013698C147.269 0.255015 149.863 2.74441 149.902 6.9103C149.992 14.3784 150.069 20.9447 149.902 28.4001C149.786 33.7472 149.991 39.2467 148.823 44.3906C146.981 52.6334 142.205 59.9473 135.367 64.9994C128.528 70.0514 120.082 72.5051 111.567 71.9134C103.171 71.3023 95.2552 67.8039 89.1939 62.0251C83.1325 56.2463 79.3076 48.5515 78.3825 40.2755C77.7403 34.4966 78.1128 28.6161 78.0614 22.7864C78.0614 17.9601 77.9587 13.1337 78.0614 8.32009C78.0614 2.56659 80.6299 0.0645307 86.3062 0.0264281C95.7453 -0.0243754 105.236 0.013698 114.739 0.013698Z" fill="currentColor"/><path d="M200.716 20.156C200.701 16.2899 200.686 12.4215 200.686 8.55356C200.647 2.54191 196.67 0 187.443 0H170.164C159.996 0.0381289 156.313 2.41482 156.313 9.07466C156.274 18.2637 156.078 54.2193 156 63.0143C156 70.8435 157.822 72 169.713 72H211.167C212.969 72 218.513 71.9746 220.296 71.8475C225.233 71.4789 227.603 70.1317 227.78 66.9289C228.073 61.7179 228.073 56.4943 227.78 51.296C227.584 48.1567 225.37 46.8349 220.531 46.5172C215.462 46.2483 210.371 46.1889 205.29 46.3393C201.607 46.5045 200.686 45.7165 200.686 43.3525C200.766 36.5829 200.753 29.8173 200.728 23.0511L200.716 20.156Z" fill="currentColor"/><path d="M234 34.2594C234 25.0345 234.148 18.6957 234.148 9.47083C234.148 2.45887 236.677 0.0528935 243.942 0.0400275C253.83 0.0400275 263.719 -0.0500344 273.607 0.0400275C281.22 0.0606495 288.582 2.64239 294.404 7.33295C300.226 12.0235 304.137 18.5237 305.451 25.6948C309.124 44.106 293.881 58.6446 274.28 59.0563C272.154 59.0563 253.803 58.8376 252.754 59.2235C251.489 60.1885 239.462 72.0896 237.188 71.9995C234.915 71.9094 234.377 68.7701 234.377 68.7701C234.377 68.7701 234 66.1069 234 64.7817C234 55.5568 234 46.3447 234 37.1327V34.2594Z" fill="currentColor"/><path d="M315.989 12V1.36778H312V0H321.516V1.36778H317.527V12H315.989Z" fill="currentColor"/><path d="M323.391 12V0H325.953L329.686 9.93921H329.705L333.493 0H336V12H334.444L334.481 1.03951H334.444L330.272 12H329.028L324.855 1.03951H324.819L324.855 12H323.391Z" fill="currentColor"/></svg></span><span class="p-label">EST. 2026 · Brooklyn, New York</span></div>
-      <fieldset class="p-modes" data-modes><legend>Color mode</legend><label><input type="radio" name="mode-foot" value="light" checked>Light</label><label><input type="radio" name="mode-foot" value="dark">Dark</label><label><input type="radio" name="mode-foot" value="mono">Mono</label></fieldset>
+      <div class="p-stack" style="gap: var(--s-8)"><span class="p-mark" style="min-height: auto"><svg viewBox="0 0 336 72" width="96" aria-hidden="true" focusable="false"><path d="M0 34.2594C0 25.0345 0.147994 18.6957 0.147994 9.47083C0.147994 2.45887 2.67722 0.0528935 9.94206 0.0400275C19.8303 0.0400275 29.7186 -0.0500344 39.6068 0.0400275C47.2195 0.0606495 54.5819 2.64239 60.4041 7.33295C66.2263 12.0235 70.137 18.5237 71.451 25.6948C75.1238 44.106 59.8811 58.6446 40.2795 59.0563C38.1539 59.0563 19.8034 58.8376 18.754 59.2235C17.4894 60.1885 5.46207 72.0896 3.18845 71.9995C0.914823 71.9094 0.376689 68.7701 0.376689 68.7701C0.376689 68.7701 0 66.1069 0 64.7817C0 55.5568 0 46.3447 0 37.1327V34.2594Z" fill="currentColor"/><path d="M114.739 0.013698H140.167C141.169 0.013698 142.17 0.013698 143.172 0.013698C147.269 0.255015 149.863 2.74441 149.902 6.9103C149.992 14.3784 150.069 20.9447 149.902 28.4001C149.786 33.7472 149.991 39.2467 148.823 44.3906C146.981 52.6334 142.205 59.9473 135.367 64.9994C128.528 70.0514 120.082 72.5051 111.567 71.9134C103.171 71.3023 95.2552 67.8039 89.1939 62.0251C83.1325 56.2463 79.3076 48.5515 78.3825 40.2755C77.7403 34.4966 78.1128 28.6161 78.0614 22.7864C78.0614 17.9601 77.9587 13.1337 78.0614 8.32009C78.0614 2.56659 80.6299 0.0645307 86.3062 0.0264281C95.7453 -0.0243754 105.236 0.013698 114.739 0.013698Z" fill="currentColor"/><path d="M200.716 20.156C200.701 16.2899 200.686 12.4215 200.686 8.55356C200.647 2.54191 196.67 0 187.443 0H170.164C159.996 0.0381289 156.313 2.41482 156.313 9.07466C156.274 18.2637 156.078 54.2193 156 63.0143C156 70.8435 157.822 72 169.713 72H211.167C212.969 72 218.513 71.9746 220.296 71.8475C225.233 71.4789 227.603 70.1317 227.78 66.9289C228.073 61.7179 228.073 56.4943 227.78 51.296C227.584 48.1567 225.37 46.8349 220.531 46.5172C215.462 46.2483 210.371 46.1889 205.29 46.3393C201.607 46.5045 200.686 45.7165 200.686 43.3525C200.766 36.5829 200.753 29.8173 200.728 23.0511L200.716 20.156Z" fill="currentColor"/><path d="M234 34.2594C234 25.0345 234.148 18.6957 234.148 9.47083C234.148 2.45887 236.677 0.0528935 243.942 0.0400275C253.83 0.0400275 263.719 -0.0500344 273.607 0.0400275C281.22 0.0606495 288.582 2.64239 294.404 7.33295C300.226 12.0235 304.137 18.5237 305.451 25.6948C309.124 44.106 293.881 58.6446 274.28 59.0563C272.154 59.0563 253.803 58.8376 252.754 59.2235C251.489 60.1885 239.462 72.0896 237.188 71.9995C234.915 71.9094 234.377 68.7701 234.377 68.7701C234.377 68.7701 234 66.1069 234 64.7817C234 55.5568 234 46.3447 234 37.1327V34.2594Z" fill="currentColor"/><path d="M315.989 12V1.36778H312V0H321.516V1.36778H317.527V12H315.989Z" fill="currentColor"/><path d="M323.391 12V0H325.953L329.686 9.93921H329.705L333.493 0H336V12H334.444L334.481 1.03951H334.444L330.272 12H329.028L324.855 1.03951H324.819L324.855 12H323.391Z" fill="currentColor"/></svg></span><span class="p-label">EST. 2026<br>Brooklyn, New York</span></div>
+  
     </div>
     
   </div>
@@ -1449,6 +1489,54 @@ html, html body { color-scheme: var(--c-scheme); background: var(--c-ground); co
     var s = (a[1] + (b[1] - a[1]) * e).toFixed(2);
     if (s !== last) { last = s; link.href = 'data:image/svg+xml,' + encodeURIComponent(T.replace('{S}', s)); }
   }, 80);
+})();
+</script>
+
+<script>
+(function () {
+  var root = document.documentElement, bar = document.querySelector('.p-bar'), fold = document.querySelector('[data-fold]');
+  if (!bar || !fold) return;
+  var btn = fold.querySelector('.p5-fold__btn'), fine = window.matchMedia('(hover: hover) and (pointer: fine)');
+  var state = 'top', last = window.scrollY, acc = 0, queued = false;
+  function unpin() { if (fold.hasAttribute('data-pinned')) { fold.removeAttribute('data-pinned'); btn.setAttribute('aria-expanded', 'false'); } }
+  function set(s) {
+    if (s === state) return; state = s;
+    if (s === 'top') root.removeAttribute('data-bar'); else root.setAttribute('data-bar', s);
+    if (s !== 'folded') { unpin(); if (fold.contains(document.activeElement)) document.activeElement.blur(); }
+  }
+  function read() {
+    queued = false;
+    var y = Math.max(0, window.scrollY), h = bar.offsetHeight, d = y - last; last = y;
+    if (document.querySelector('dialog[open]')) return;                    // a dialog holds the page still
+    if (y <= h) { acc = 0; set('top'); return; }
+    if ((d > 0) !== (acc > 0)) acc = 0;
+    acc += d;
+    if (acc > 8 && y > 2 * h) set('folded');                               // down: fold
+    else if (acc < -12) set('peek');                                       // a short scroll up: the whole bar
+  }
+  window.addEventListener('scroll', function () { if (!queued) { queued = true; requestAnimationFrame(read); } }, { passive: true });
+  if (window.scrollY > 2 * bar.offsetHeight) set('folded');
+  // the button steps aside while the footer's own wordmark is in view
+  var end = document.querySelector('.p-foot__end');
+  if (end && 'IntersectionObserver' in window) new IntersectionObserver(function (es) {
+    es.forEach(function (e) { if (e.isIntersecting) { root.setAttribute('data-foot-in', ''); unpin(); } else root.removeAttribute('data-foot-in'); });
+  }).observe(end);
+  // with a mouse, a click pins the menu open (hover already previews it); on touch, a tap opens the menu sheet
+  document.addEventListener('click', function (e) {
+    if (btn.contains(e.target)) {
+      if (!fine.matches) return;
+      e.stopPropagation(); e.preventDefault();
+      var on = !fold.hasAttribute('data-pinned');
+      if (on) fold.setAttribute('data-pinned', ''); else fold.removeAttribute('data-pinned');
+      btn.setAttribute('aria-expanded', on ? 'true' : 'false');
+    } else if (!fold.contains(e.target)) unpin();
+  }, true);
+  fold.addEventListener('keydown', function (e) {
+    if (e.key !== 'Escape') return;
+    unpin(); fold.setAttribute('data-dismissed', ''); btn.focus();
+  });
+  fold.addEventListener('mouseleave', function () { fold.removeAttribute('data-dismissed'); });
+  fold.addEventListener('focusout', function (e) { if (!fold.contains(e.relatedTarget)) fold.removeAttribute('data-dismissed'); });
 })();
 </script>
 </body>
