@@ -493,6 +493,8 @@ html, html body { color-scheme: var(--c-scheme); background: var(--c-ground); co
   .p5-nocaps { text-transform: none; }
   .p5-nowrap { white-space: nowrap; }
   .p5-icon { display: inline-block; flex: none; vertical-align: -0.2em; }
+  /* the wordmark fills its viewBox edge to edge: keep its exact ratio and never clip the P tails */
+  .p-bar .p-mark svg { aspect-ratio: 336 / 72; overflow: visible; }
 
   /* the home hero, over the stairs photograph */
   .p5-hero { position: relative; overflow: clip; isolation: isolate; min-height: min(92svh, 880px); display: grid; align-items: end;
