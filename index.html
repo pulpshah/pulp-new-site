@@ -506,7 +506,7 @@ html, html body { color-scheme: var(--c-scheme); background: var(--c-ground); co
   .p5-tilt { perspective: 1400px; }
   .p5-figure__img { position: relative; }
   .p5-sheen { position: absolute; inset: 0; pointer-events: none; opacity: 0; mix-blend-mode: soft-light;
-    background: radial-gradient(circle at var(--lx, 50%) var(--ly, 50%), color-mix(in srgb, var(--c-photo-type) 88.2%, transparent) 0%, transparent 49.6%); }
+    background: radial-gradient(circle at var(--lx, 50%) var(--ly, 50%), color-mix(in srgb, var(--c-photo-type) 97%, transparent) 0%, transparent 44.6%); }
   /* on the hero and the call to action the spotlight sits over the gradient and under the words, and fades out where the
      gradient turns solid, so it lights the photograph and not the plain ground */
   .p5-sheen--over { z-index: -1; }
@@ -1320,7 +1320,7 @@ html, html body { color-scheme: var(--c-scheme); background: var(--c-ground); co
       if (glass) {   // the glass follows the light that reaches the robot: full with the light on it, gone as the light moves away
         var sr = sheen.getBoundingClientRect(), gr = glass.getBoundingClientRect();
         var lx = sr.left + sr.width * (50 + c.x * 45) / 100, ly = sr.top + sr.height * (50 + c.y * 45) / 100;
-        var reach = 0.496 * Math.max(Math.hypot(lx - sr.left, ly - sr.top), Math.hypot(sr.right - lx, ly - sr.top), Math.hypot(lx - sr.left, sr.bottom - ly), Math.hypot(sr.right - lx, sr.bottom - ly));
+        var reach = 0.446 * Math.max(Math.hypot(lx - sr.left, ly - sr.top), Math.hypot(sr.right - lx, ly - sr.top), Math.hypot(lx - sr.left, sr.bottom - ly), Math.hypot(sr.right - lx, sr.bottom - ly));
         var near = Math.max(0, Math.min(1, 1 - (Math.hypot(gr.left + gr.width / 2 - lx, gr.top + gr.height / 2 - ly) - gr.width * 0.2) / reach));
         zone.style.setProperty('--p5-lit', (c.o * near * near).toFixed(3));
       }
