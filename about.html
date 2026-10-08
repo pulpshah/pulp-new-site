@@ -514,6 +514,8 @@ html, html body { color-scheme: var(--c-scheme); background: var(--c-ground); co
   .p-cta > .p5-sheen--over { -webkit-mask-image: linear-gradient(var(--grad-feature-dir), transparent 0%, transparent calc(var(--grad-feature-solid) - 4%), #000 calc(var(--grad-feature-solid) + 18%));
                              mask-image: linear-gradient(var(--grad-feature-dir), transparent 0%, transparent calc(var(--grad-feature-solid) - 4%), #000 calc(var(--grad-feature-solid) + 18%)); }
   @media (prefers-reduced-motion: reduce) { .p5-sheen { display: none; } }
+  @media (hover: none) { [data-photo], .p5-hero, .p-cta, .p5-reelled [data-reel] { touch-action: pan-y pinch-zoom; } }
+  .p-cta__robot[data-state="blink"] .p-robot__eyes { animation: robot-blink var(--dur-quick) var(--ease-leave) 2 alternate; }
 
   /* the bar, two states (R-INT-06): the whole bar at the top of a page; scrolling down folds it into a round wordmark
      button at the bottom right, and a short scroll up brings the whole bar back. Glass for both (R-GLS-04). */
@@ -1243,9 +1245,14 @@ html, html body { color-scheme: var(--c-scheme); background: var(--c-ground); co
 })();
 
 /* photo tilt (R-PHO-09): on a fine pointer with hover, a photo leans away from the cursor inside its frame and a soft
-   light follows the cursor; it eases in slowly and settles flat when the pointer leaves. Photos only. */
+   light follows the cursor; it eases in slowly and settles flat when the pointer leaves. Photos only.
+   Touch (R-INT-07): a scroll light drifts across each photo as it crosses the screen, at half strength and without tilt;
+   a finger lights where it lands and is followed while it moves (a sideways drag also tilts), a tap blooms and fades;
+   tapping a robot frosts its glass and makes it blink. All listeners are passive: scrolling and zoom stay the page's. */
 (function () {
   var fine = window.matchMedia('(hover: hover) and (pointer: fine)'), still = window.matchMedia('(prefers-reduced-motion: reduce)');
+  function touchy() { return !fine.matches && !still.matches; }
+  var kicks = [];
   Array.prototype.slice.call(document.querySelectorAll('[data-photo]')).forEach(function (box) {
     var img = box.querySelector('img'); if (!img) return;
     var small = box.classList.contains('p5-figure');
@@ -1254,18 +1261,29 @@ html, html body { color-scheme: var(--c-scheme); background: var(--c-ground); co
     var sheen = document.createElement('span'); sheen.className = 'p5-sheen'; sheen.setAttribute('aria-hidden', 'true');
     var zone = box.closest('.p5-hero, .p-cta') || box;
     var glass = zone !== box ? zone.querySelector('.p5-glass') : null;
+    var robot = zone !== box ? zone.querySelector('.p5-hero__robot, .p-cta__robot') : null;
     if (zone !== box) { sheen.classList.add('p5-sheen--over'); box.insertAdjacentElement('afterend', sheen); }
     else img.insertAdjacentElement('afterend', sheen);
     clip.classList.add('p5-tilt');
-    var t = { x: 0, y: 0, o: 0 }, c = { x: 0, y: 0, o: 0 }, raf = null;
+    var t = { x: 0, y: 0, o: 0, k: 1 }, c = { x: 0, y: 0, o: 0, k: 1, g: 0 }, raf = null, vis = false;
+    var f = { on: false, x: 0, y: 0, k: 0.6, until: 0, sx: 0, sy: 0, st: 0, moved: false }, boost = 0;
     function clamp(v) { return Math.max(-1, Math.min(1, v)); }
+    function aimTouch(now) {
+      if (f.on || now < f.until) { t.x = f.x; t.y = f.y; t.o = 1; t.k = f.k; return; }
+      t.k = 0;
+      if (!vis) { t.o = 0; return; }
+      var r = clip.getBoundingClientRect(), p = Math.max(0, Math.min(1, (innerHeight - r.top) / (innerHeight + r.height)));
+      t.x = -0.85 + 1.7 * p; t.y = -0.5 + p; t.o = 0.5 * Math.sin(Math.PI * p);      // the scroll light: in at one edge, out at the other
+    }
     function step() {
       raf = null;
-      c.x += (t.x - c.x) * 0.06; c.y += (t.y - c.y) * 0.06; c.o += (t.o - c.o) * 0.06;
-      var m = Math.hypot(c.x, c.y);
-      img.style.translate = (-c.x * SHIFT).toFixed(2) + 'px ' + (-c.y * SHIFT * 0.75).toFixed(2) + 'px';
-      img.style.rotate = m > 0.001 ? (-c.y).toFixed(3) + ' ' + c.x.toFixed(3) + ' 0 ' + (m * AMP).toFixed(3) + 'deg' : 'none';
-      img.style.scale = (1 + 0.04 * c.o).toFixed(4);
+      var now = performance.now(), touch = touchy();
+      if (touch) aimTouch(now);
+      c.x += (t.x - c.x) * 0.06; c.y += (t.y - c.y) * 0.06; c.o += (t.o - c.o) * 0.06; c.k += (t.k - c.k) * 0.1;
+      var m = Math.hypot(c.x, c.y), k = c.k;
+      img.style.translate = (-c.x * SHIFT * k).toFixed(2) + 'px ' + (-c.y * SHIFT * 0.75 * k).toFixed(2) + 'px';
+      img.style.rotate = m * k > 0.001 ? (-c.y).toFixed(3) + ' ' + c.x.toFixed(3) + ' 0 ' + (m * AMP * k).toFixed(3) + 'deg' : 'none';
+      img.style.scale = (1 + 0.04 * c.o * k).toFixed(4);
       sheen.style.setProperty('--lx', (50 + c.x * 45).toFixed(1) + '%'); sheen.style.setProperty('--ly', (50 + c.y * 45).toFixed(1) + '%');
       sheen.style.opacity = c.o.toFixed(3);
       if (glass) {   // the glass follows the light that reaches the robot: full with the light on it, gone as the light moves away
@@ -1273,19 +1291,59 @@ html, html body { color-scheme: var(--c-scheme); background: var(--c-ground); co
         var lx = sr.left + sr.width * (50 + c.x * 45) / 100, ly = sr.top + sr.height * (50 + c.y * 45) / 100;
         var reach = 0.446 * Math.max(Math.hypot(lx - sr.left, ly - sr.top), Math.hypot(sr.right - lx, ly - sr.top), Math.hypot(lx - sr.left, sr.bottom - ly), Math.hypot(sr.right - lx, sr.bottom - ly));
         var near = Math.max(0, Math.min(1, 1 - (Math.hypot(gr.left + gr.width / 2 - lx, gr.top + gr.height / 2 - ly) - gr.width * 0.2) / reach));
-        zone.style.setProperty('--p5-lit', (c.o * near * near).toFixed(3));
+        c.g += ((now < boost ? 1 : c.o * near * near) - c.g) * 0.12;
+        zone.style.setProperty('--p5-lit', c.g.toFixed(3));
       }
-      if (Math.abs(t.x - c.x) + Math.abs(t.y - c.y) + Math.abs(t.o - c.o) > 0.002) raf = requestAnimationFrame(step);
-      else if (!t.o) { c.x = c.y = c.o = 0; img.style.translate = img.style.rotate = img.style.scale = ''; sheen.style.opacity = '0'; zone.style.removeProperty('--p5-lit'); }
+      var busy = touch && (f.on || now < f.until || now < boost + 400);
+      if (busy || Math.abs(t.x - c.x) + Math.abs(t.y - c.y) + Math.abs(t.o - c.o) + Math.abs(t.k - c.k) > 0.002 || (glass && Math.abs(c.g - (now < boost ? 1 : c.o)) > 0.004 && c.g > 0.002)) raf = requestAnimationFrame(step);
+      else if (!t.o) { c.x = c.y = c.o = c.g = 0; img.style.translate = img.style.rotate = img.style.scale = ''; sheen.style.opacity = '0'; zone.style.removeProperty('--p5-lit'); }
     }
     function kick() { if (!raf) raf = requestAnimationFrame(step); }
+    kicks.push(function () { if (vis) kick(); });
+    if ('IntersectionObserver' in window) new IntersectionObserver(function (es) { vis = es[0].isIntersecting; kick(); }).observe(clip);
     zone.addEventListener('pointermove', function (e) {
       if (!fine.matches || still.matches || e.pointerType === 'touch') return;
       var r = clip.getBoundingClientRect();
-      t.x = clamp((e.clientX - r.left) / r.width * 2 - 1); t.y = clamp((e.clientY - r.top) / r.height * 2 - 1); t.o = 1; kick();
+      t.x = clamp((e.clientX - r.left) / r.width * 2 - 1); t.y = clamp((e.clientY - r.top) / r.height * 2 - 1); t.o = 1; t.k = 1; kick();
     }, { passive: true });
-    zone.addEventListener('pointerleave', function () { t.x = 0; t.y = 0; t.o = 0; kick(); });
+    zone.addEventListener('pointerleave', function (e) { if (e.pointerType === 'touch') return; t.x = 0; t.y = 0; t.o = 0; kick(); });
+    // the finger
+    function at(p) { var r = clip.getBoundingClientRect(); f.x = clamp((p.clientX - r.left) / r.width * 2 - 1); f.y = clamp((p.clientY - r.top) / r.height * 2 - 1); }
+    zone.addEventListener('touchstart', function (e) {
+      if (!touchy() || e.touches.length !== 1) return;
+      var p = e.touches[0];
+      if (p.clientX < 24 || p.clientX > innerWidth - 24) return;               // the edges belong to the system's swipes
+      f.on = true; f.moved = false; f.k = 0.6; f.sx = p.clientX; f.sy = p.clientY; f.st = performance.now(); at(p); kick();
+    }, { passive: true });
+    zone.addEventListener('touchmove', function (e) {
+      if (!f.on || e.touches.length !== 1) { f.on = false; return; }
+      var p = e.touches[0], dx = p.clientX - f.sx, dy = p.clientY - f.sy;
+      if (!f.moved && Math.hypot(dx, dy) > 10) { f.moved = true; if (Math.abs(dx) > Math.abs(dy)) f.k = 1; }   // sideways: the full tilt
+      at(p); kick();
+    }, { passive: true });
+    function lift(e) {
+      if (!f.on) return; f.on = false;
+      var now = performance.now();
+      if (!f.moved && now - f.st < 300) {                                       // a tap: a bloom that fades
+        f.until = now + 180;
+        if (robot && e.changedTouches && e.changedTouches[0]) {
+          var q = e.changedTouches[0], b = robot.getBoundingClientRect();
+          if (q.clientX >= b.left && q.clientX <= b.right && q.clientY >= b.top && q.clientY <= b.bottom) {
+            boost = now + 1100; robot.setAttribute('data-state', 'blink');
+            setTimeout(function () { robot.removeAttribute('data-state'); }, 700);
+          }
+        }
+      }
+      kick();
+    }
+    zone.addEventListener('touchend', lift, { passive: true });
+    zone.addEventListener('touchcancel', function () { f.on = false; kick(); }, { passive: true });
   });
+  var queued = false;
+  addEventListener('scroll', function () {
+    if (!touchy() || queued) return; queued = true;
+    requestAnimationFrame(function () { queued = false; kicks.forEach(function (k) { k(); }); });
+  }, { passive: true });
 })();
 
   /* hover reels: follow on fine pointers with hover; inline on touch or reduced motion */
@@ -1299,7 +1357,7 @@ html, html body { color-scheme: var(--c-scheme); background: var(--c-ground); co
     var tx = 0, ty = 0, x = 0, y = 0, raf = null, home = document.body, nextSib = null;
     document.body.appendChild(reel);   // fixed position needs a parent without transforms
     function inline() { return !fine.matches || still.matches; }
-    function show(k) {
+    function show(k, hold) {
       slides.forEach(function (s) { s.classList.remove('is-on'); });
       i = (k + slides.length) % slides.length;
       void reel.offsetWidth;   // restart the piece's animations from its first frame
@@ -1308,7 +1366,7 @@ html, html body { color-scheme: var(--c-scheme); background: var(--c-ground); co
       void reel.offsetWidth;
       if (segs[i]) segs[i].classList.add('is-now');
       clearTimeout(timer);
-      if (!still.matches) timer = setTimeout(function () { show(i + 1); }, DWELL);
+      if (!still.matches && !hold) timer = setTimeout(function () { show(i + 1); }, DWELL);
     }
     function pick(row) {
       var key = row.getAttribute('data-reel');
@@ -1369,6 +1427,43 @@ html, html body { color-scheme: var(--c-scheme); background: var(--c-ground); co
       row.addEventListener('keydown', function (e) {
         if (!inline() || (e.key !== 'Enter' && e.key !== ' ') || e.target !== row) return; e.preventDefault(); openInline(row);
       });
+    });
+    /* touch (R-INT-07): a sideways swipe along a row scrubs its reel like a playhead, forward and back; letting go settles
+       on the nearest frame and plays on. Vertical swipes stay the page's; swipes from the screen's edges stay the system's */
+    var sc = null;
+    function scrubTo(row, x) {
+      var b = row.getBoundingClientRect(), total = Math.max(0, Math.min(0.999, (x - b.left) / b.width)) * slides.length;
+      var k = Math.floor(total), local = total - k;
+      if (k !== i || !slides[k].classList.contains('is-on')) show(k, true);
+      clearTimeout(timer);
+      if (segs[i]) segs[i].classList.remove('is-now');
+      if (slides[k].getAnimations) slides[k].getAnimations({ subtree: true }).forEach(function (a) {
+        a.pause(); var end = a.effect.getComputedTiming().endTime || 0; a.currentTime = local * end;
+      });
+      sc.total = total;
+    }
+    rows.forEach(function (row) {
+      row.addEventListener('touchstart', function (e) {
+        if (!inline() || still.matches || e.touches.length !== 1) return;
+        var p = e.touches[0];
+        if (p.clientX < 24 || p.clientX > innerWidth - 24) return;
+        sc = { row: row, x: p.clientX, y: p.clientY, lock: null, total: 0 };
+      }, { passive: true });
+      row.addEventListener('touchmove', function (e) {
+        if (!sc || sc.row !== row || e.touches.length !== 1) return;
+        var p = e.touches[0], dx = p.clientX - sc.x, dy = p.clientY - sc.y;
+        if (!sc.lock) { if (Math.hypot(dx, dy) < 10) return; sc.lock = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y'; }
+        if (sc.lock !== 'x') { sc = null; return; }                              // vertical: the page scrolls
+        if (!(hot === row && reel.classList.contains('is-inline'))) openInline(row);
+        scrubTo(row, p.clientX);
+      }, { passive: true });
+      function let_go() {
+        if (!sc || sc.row !== row) return;
+        var done = sc.lock === 'x', total = sc.total; sc = null;
+        if (done) show(Math.min(slides.length - 1, Math.round(total)));         // settle on the nearest frame, then play on
+      }
+      row.addEventListener('touchend', let_go, { passive: true });
+      row.addEventListener('touchcancel', let_go, { passive: true });
     });
     function syncRoles() {
       rows.forEach(function (r) { if (inline()) { r.setAttribute('role', 'button'); r.setAttribute('aria-expanded', 'false'); } else { r.removeAttribute('role'); r.removeAttribute('aria-expanded'); } });
