@@ -507,6 +507,12 @@ html, html body { color-scheme: var(--c-scheme); background: var(--c-ground); co
   .p5-figure__img { position: relative; }
   .p5-sheen { position: absolute; inset: 0; pointer-events: none; opacity: 0; mix-blend-mode: soft-light;
     background: radial-gradient(circle at var(--lx, 50%) var(--ly, 50%), color-mix(in srgb, var(--c-photo-type) 87.5%, transparent) 0%, transparent 62%); }
+  /* on the hero and the call to action the spotlight sits over the gradient and under the words, and fades out where the
+     gradient turns solid, so it lights the photograph and not the plain ground */
+  .p5-sheen--over { z-index: -1; }
+  .p5-hero > .p5-sheen--over { -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 34%); mask-image: linear-gradient(90deg, transparent 0%, #000 34%); }
+  .p-cta > .p5-sheen--over { -webkit-mask-image: linear-gradient(var(--grad-feature-dir), transparent 0%, transparent calc(var(--grad-feature-solid) - 4%), #000 calc(var(--grad-feature-solid) + 18%));
+                             mask-image: linear-gradient(var(--grad-feature-dir), transparent 0%, transparent calc(var(--grad-feature-solid) - 4%), #000 calc(var(--grad-feature-solid) + 18%)); }
   @media (prefers-reduced-motion: reduce) { .p5-sheen { display: none; } }
 
 @layer components {
@@ -528,9 +534,9 @@ html, html body { color-scheme: var(--c-scheme); background: var(--c-ground); co
   /* the home hero, over the stairs photograph */
   .p5-hero { position: relative; overflow: clip; isolation: isolate; min-height: min(92svh, 880px); display: grid; align-items: end;
     background: var(--c-photo-ground); color: var(--c-photo-type); padding-block: calc(var(--s-96) + var(--s-48)) var(--s-96); }
-  .p5-hero__photo { position: absolute; inset: -10% 0; z-index: -2; }
+  .p5-hero__photo { position: absolute; inset: -10% 0; z-index: -3; }
   .p5-hero__img { width: 100%; height: 100%; object-fit: cover; object-position: var(--focus, 50% 50%); filter: var(--c-photo-filter); }
-  .p5-hero::after { content: ""; position: absolute; inset: 0; z-index: -1;
+  .p5-hero::after { content: ""; position: absolute; inset: 0; z-index: -2;
     background: linear-gradient(90deg, var(--c-photo-ground) 0%, color-mix(in srgb, var(--c-photo-ground) 78%, transparent) 42%, color-mix(in srgb, var(--c-photo-ground) 10%, transparent) 78%),
                 linear-gradient(0deg, color-mix(in srgb, var(--c-photo-ground) 70%, transparent) 0%, transparent 45%); }
   .p5-hero__text { max-width: 1160px; display: flex; flex-direction: column; gap: var(--s-24); }
@@ -867,7 +873,7 @@ html, html body { color-scheme: var(--c-scheme); background: var(--c-ground); co
       <div class="p-stack" style="gap: var(--s-8)"><span class="p-mark" style="min-height: auto"><svg viewBox="0 0 336 72" width="96" aria-hidden="true" focusable="false"><path d="M0 34.2594C0 25.0345 0.147994 18.6957 0.147994 9.47083C0.147994 2.45887 2.67722 0.0528935 9.94206 0.0400275C19.8303 0.0400275 29.7186 -0.0500344 39.6068 0.0400275C47.2195 0.0606495 54.5819 2.64239 60.4041 7.33295C66.2263 12.0235 70.137 18.5237 71.451 25.6948C75.1238 44.106 59.8811 58.6446 40.2795 59.0563C38.1539 59.0563 19.8034 58.8376 18.754 59.2235C17.4894 60.1885 5.46207 72.0896 3.18845 71.9995C0.914823 71.9094 0.376689 68.7701 0.376689 68.7701C0.376689 68.7701 0 66.1069 0 64.7817C0 55.5568 0 46.3447 0 37.1327V34.2594Z" fill="currentColor"/><path d="M114.739 0.013698H140.167C141.169 0.013698 142.17 0.013698 143.172 0.013698C147.269 0.255015 149.863 2.74441 149.902 6.9103C149.992 14.3784 150.069 20.9447 149.902 28.4001C149.786 33.7472 149.991 39.2467 148.823 44.3906C146.981 52.6334 142.205 59.9473 135.367 64.9994C128.528 70.0514 120.082 72.5051 111.567 71.9134C103.171 71.3023 95.2552 67.8039 89.1939 62.0251C83.1325 56.2463 79.3076 48.5515 78.3825 40.2755C77.7403 34.4966 78.1128 28.6161 78.0614 22.7864C78.0614 17.9601 77.9587 13.1337 78.0614 8.32009C78.0614 2.56659 80.6299 0.0645307 86.3062 0.0264281C95.7453 -0.0243754 105.236 0.013698 114.739 0.013698Z" fill="currentColor"/><path d="M200.716 20.156C200.701 16.2899 200.686 12.4215 200.686 8.55356C200.647 2.54191 196.67 0 187.443 0H170.164C159.996 0.0381289 156.313 2.41482 156.313 9.07466C156.274 18.2637 156.078 54.2193 156 63.0143C156 70.8435 157.822 72 169.713 72H211.167C212.969 72 218.513 71.9746 220.296 71.8475C225.233 71.4789 227.603 70.1317 227.78 66.9289C228.073 61.7179 228.073 56.4943 227.78 51.296C227.584 48.1567 225.37 46.8349 220.531 46.5172C215.462 46.2483 210.371 46.1889 205.29 46.3393C201.607 46.5045 200.686 45.7165 200.686 43.3525C200.766 36.5829 200.753 29.8173 200.728 23.0511L200.716 20.156Z" fill="currentColor"/><path d="M234 34.2594C234 25.0345 234.148 18.6957 234.148 9.47083C234.148 2.45887 236.677 0.0528935 243.942 0.0400275C253.83 0.0400275 263.719 -0.0500344 273.607 0.0400275C281.22 0.0606495 288.582 2.64239 294.404 7.33295C300.226 12.0235 304.137 18.5237 305.451 25.6948C309.124 44.106 293.881 58.6446 274.28 59.0563C272.154 59.0563 253.803 58.8376 252.754 59.2235C251.489 60.1885 239.462 72.0896 237.188 71.9995C234.915 71.9094 234.377 68.7701 234.377 68.7701C234.377 68.7701 234 66.1069 234 64.7817C234 55.5568 234 46.3447 234 37.1327V34.2594Z" fill="currentColor"/><path d="M315.989 12V1.36778H312V0H321.516V1.36778H317.527V12H315.989Z" fill="currentColor"/><path d="M323.391 12V0H325.953L329.686 9.93921H329.705L333.493 0H336V12H334.444L334.481 1.03951H334.444L330.272 12H329.028L324.855 1.03951H324.819L324.855 12H323.391Z" fill="currentColor"/></svg></span><span class="p-label">EST. 2026 · Brooklyn, New York</span></div>
       <fieldset class="p-modes" data-modes><legend>Color mode</legend><label><input type="radio" name="mode-foot" value="light" checked>Light</label><label><input type="radio" name="mode-foot" value="dark">Dark</label><label><input type="radio" name="mode-foot" value="mono">Mono</label></fieldset>
     </div>
-    <p class="p-small p-muted p-credits">Photos by Donny Jiang.</p>
+    
   </div>
 </footer>
 
@@ -1195,8 +1201,10 @@ html, html body { color-scheme: var(--c-scheme); background: var(--c-ground); co
     var clip = small ? box.querySelector('.p5-figure__img') : box;
     var AMP = small ? 3 : 1, SHIFT = small ? 6 : 12;
     var sheen = document.createElement('span'); sheen.className = 'p5-sheen'; sheen.setAttribute('aria-hidden', 'true');
-    img.insertAdjacentElement('afterend', sheen); clip.classList.add('p5-tilt');
     var zone = box.closest('.p5-hero, .p-cta') || box;
+    if (zone !== box) { sheen.classList.add('p5-sheen--over'); box.insertAdjacentElement('afterend', sheen); }
+    else img.insertAdjacentElement('afterend', sheen);
+    clip.classList.add('p5-tilt');
     var t = { x: 0, y: 0, o: 0 }, c = { x: 0, y: 0, o: 0 }, raf = null;
     function clamp(v) { return Math.max(-1, Math.min(1, v)); }
     function step() {
