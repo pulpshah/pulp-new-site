@@ -514,6 +514,17 @@ html, html body { color-scheme: var(--c-scheme); background: var(--c-ground); co
   .p-cta > .p5-sheen--over { -webkit-mask-image: linear-gradient(var(--grad-feature-dir), transparent 0%, transparent calc(var(--grad-feature-solid) - 4%), #000 calc(var(--grad-feature-solid) + 18%));
                              mask-image: linear-gradient(var(--grad-feature-dir), transparent 0%, transparent calc(var(--grad-feature-solid) - 4%), #000 calc(var(--grad-feature-solid) + 18%)); }
   @media (prefers-reduced-motion: reduce) { .p5-sheen { display: none; } }
+  /* plates in layers (R-IMG-04): one move per plate, from what its drawing means; small, pointer-driven, never autoplayed */
+  .p5-layers { position: absolute; inset: 0; perspective: 900px; }
+  .p5-layer { position: absolute; inset: 0; transform-origin: 50% 50%; }
+  .p5-layer::before, .p5-layer::after { content: ""; position: absolute; inset: 0; -webkit-mask-size: cover; mask-size: cover; -webkit-mask-position: center; mask-position: center; }
+  .p5-layer::before { background: var(--p5-ground); -webkit-mask-image: var(--foot); mask-image: var(--foot); }
+  .p5-layer::after { background: var(--c-plate); -webkit-mask-image: var(--ink); mask-image: var(--ink); }
+  .p5-layers[data-plate="persona-engine"] .p5-layer { transform-origin: 28.9% 100%; }
+  .p5-layers[data-plate="persuasive-intelligence"] [data-layer="statement"] { transform-origin: 32.9% 50.2%; }
+  .p5-layers[data-plate="persuasive-intelligence"] [data-layer^="ray"], .p5-layers[data-plate="persuasive-intelligence"] [data-layer^="name"] { transform-origin: 51.6% 50.9%; }
+  .p5-layers[data-plate="persuasive-intelligence"] [data-layer="prism"] { transform-origin: 42.1% 57.9%; }
+  .p5-layers[data-plate="data-storytelling"] [data-layer="public"] { transform-origin: 50% 82.5%; }
   /* the plate light: light passing over a print. It falls on the ink only (the plate's dot layer as a mask), never on the
      paper, which is the page's own ground; no tilt (R-IMG-04) */
   .p5-sheen--plate { background: radial-gradient(circle at var(--lx, 50%) var(--ly, 50%), color-mix(in srgb, #FFFFFF 85%, transparent) 0%, transparent 44.6%);
@@ -957,7 +968,7 @@ html, html body { color-scheme: var(--c-scheme); background: var(--c-ground); co
     <div class="p-wrap p-stack" style="gap: var(--s-32)">
       <h2 class="p-h2" id="see-title">Three ways we look at&nbsp;people.</h2>
       <p class="p-hint"><span class="p-dot" data-tone="guide" aria-hidden="true"></span>Hover or tap a plate to see what it&nbsp;measures.</p>
-      <div class="p-grid p-plates" data-cols="3" data-plates><div class="p-stack"><button type="button" class="p-plate" aria-pressed="false" aria-describedby="pl-data-storytelling"><span class="p-plate__art"><span class="p-plate__dots" data-plate="data-storytelling"></span><span class="p-plate__label" id="pl-data-storytelling">How a whole public’s views move over time.</span></span><span class="p-h3">From afar</span></button><p class="p-small p-muted">Large groups over time: how views move across a city, a country, a&nbsp;decade.</p></div><div class="p-stack"><button type="button" class="p-plate" aria-pressed="false" aria-describedby="pl-persona-engine"><span class="p-plate__art"><span class="p-plate__dots" data-plate="persona-engine"></span><span class="p-plate__label" id="pl-persona-engine">One person at one moment. Real or simulated, never mixed.</span></span><span class="p-h3">Up close</span></button><p class="p-small p-muted">One person at one moment: who they are, what they care about, how they’re feeling, and where they&nbsp;are.</p><div class="p-row"><span class="p-chip" data-tone="people">Verified people</span><span class="p-chip" data-tone="machine">Simulated personas</span></div></div><div class="p-stack"><button type="button" class="p-plate" aria-pressed="false" aria-describedby="pl-persuasive-intelligence"><span class="p-plate__art"><span class="p-plate__dots" data-plate="persuasive-intelligence"></span><span class="p-plate__label" id="pl-persuasive-intelligence">Why an argument lands: who says it, how it feels, the logic, the timing.</span></span><span class="p-h3">From every angle</span></button><p class="p-small p-muted">Why people decide what they decide, written as numbers for machines and plain words for&nbsp;people.</p></div></div>
+      <div class="p-grid p-plates" data-cols="3" data-plates><div class="p-stack"><button type="button" class="p-plate" aria-pressed="false" aria-describedby="pl-data-storytelling"><span class="p-plate__art"><span class="p5-layers" data-plate="data-storytelling" aria-hidden="true"><span class="p5-layer" data-layer="public" style="--ink: url(plates/layers/data-storytelling-public-ink.webp); --foot: url(plates/layers/data-storytelling-public-foot.webp)"></span><span class="p5-layer" data-layer="line" style="--ink: url(plates/layers/data-storytelling-line-ink.webp); --foot: url(plates/layers/data-storytelling-line-foot.webp)"></span><span class="p5-layer" data-layer="ground" style="--ink: url(plates/layers/data-storytelling-ground-ink.webp); --foot: url(plates/layers/data-storytelling-ground-foot.webp)"></span><span class="p5-layer" data-layer="title" style="--ink: url(plates/layers/data-storytelling-title-ink.webp); --foot: url(plates/layers/data-storytelling-title-foot.webp)"></span><span class="p5-layer" data-layer="frame" style="--ink: url(plates/layers/data-storytelling-frame-ink.webp); --foot: url(plates/layers/data-storytelling-frame-foot.webp)"></span></span><span class="p-plate__label" id="pl-data-storytelling">How a whole public’s views move over time.</span></span><span class="p-h3">From afar</span></button><p class="p-small p-muted">Large groups over time: how views move across a city, a country, a&nbsp;decade.</p></div><div class="p-stack"><button type="button" class="p-plate" aria-pressed="false" aria-describedby="pl-persona-engine"><span class="p-plate__art"><span class="p5-layers" data-plate="persona-engine" aria-hidden="true"><span class="p5-layer" data-layer="person" style="--ink: url(plates/layers/persona-engine-person-ink.webp); --foot: url(plates/layers/persona-engine-person-foot.webp)"></span><span class="p5-layer" data-layer="room1" style="--ink: url(plates/layers/persona-engine-room1-ink.webp); --foot: url(plates/layers/persona-engine-room1-foot.webp)"></span><span class="p5-layer" data-layer="room2" style="--ink: url(plates/layers/persona-engine-room2-ink.webp); --foot: url(plates/layers/persona-engine-room2-foot.webp)"></span><span class="p5-layer" data-layer="words" style="--ink: url(plates/layers/persona-engine-words-ink.webp); --foot: url(plates/layers/persona-engine-words-foot.webp)"></span><span class="p5-layer" data-layer="frame" style="--ink: url(plates/layers/persona-engine-frame-ink.webp); --foot: url(plates/layers/persona-engine-frame-foot.webp)"></span></span><span class="p-plate__label" id="pl-persona-engine">One person at one moment. Real or simulated, never mixed.</span></span><span class="p-h3">Up close</span></button><p class="p-small p-muted">One person at one moment: who they are, what they care about, how they’re feeling, and where they&nbsp;are.</p><div class="p-row"><span class="p-chip" data-tone="people">Verified people</span><span class="p-chip" data-tone="machine">Simulated personas</span></div></div><div class="p-stack"><button type="button" class="p-plate" aria-pressed="false" aria-describedby="pl-persuasive-intelligence"><span class="p-plate__art"><span class="p5-layers" data-plate="persuasive-intelligence" aria-hidden="true"><span class="p5-layer" data-layer="statement" style="--ink: url(plates/layers/persuasive-intelligence-statement-ink.webp); --foot: url(plates/layers/persuasive-intelligence-statement-foot.webp)"></span><span class="p5-layer" data-layer="ray1" style="--ink: url(plates/layers/persuasive-intelligence-ray1-ink.webp); --foot: url(plates/layers/persuasive-intelligence-ray1-foot.webp)"></span><span class="p5-layer" data-layer="ray2" style="--ink: url(plates/layers/persuasive-intelligence-ray2-ink.webp); --foot: url(plates/layers/persuasive-intelligence-ray2-foot.webp)"></span><span class="p5-layer" data-layer="ray3" style="--ink: url(plates/layers/persuasive-intelligence-ray3-ink.webp); --foot: url(plates/layers/persuasive-intelligence-ray3-foot.webp)"></span><span class="p5-layer" data-layer="ray4" style="--ink: url(plates/layers/persuasive-intelligence-ray4-ink.webp); --foot: url(plates/layers/persuasive-intelligence-ray4-foot.webp)"></span><span class="p5-layer" data-layer="name1" style="--ink: url(plates/layers/persuasive-intelligence-name1-ink.webp); --foot: url(plates/layers/persuasive-intelligence-name1-foot.webp)"></span><span class="p5-layer" data-layer="name2" style="--ink: url(plates/layers/persuasive-intelligence-name2-ink.webp); --foot: url(plates/layers/persuasive-intelligence-name2-foot.webp)"></span><span class="p5-layer" data-layer="name3" style="--ink: url(plates/layers/persuasive-intelligence-name3-ink.webp); --foot: url(plates/layers/persuasive-intelligence-name3-foot.webp)"></span><span class="p5-layer" data-layer="name4" style="--ink: url(plates/layers/persuasive-intelligence-name4-ink.webp); --foot: url(plates/layers/persuasive-intelligence-name4-foot.webp)"></span><span class="p5-layer" data-layer="prism" style="--ink: url(plates/layers/persuasive-intelligence-prism-ink.webp); --foot: url(plates/layers/persuasive-intelligence-prism-foot.webp)"></span><span class="p5-layer" data-layer="frame" style="--ink: url(plates/layers/persuasive-intelligence-frame-ink.webp); --foot: url(plates/layers/persuasive-intelligence-frame-foot.webp)"></span></span><span class="p-plate__label" id="pl-persuasive-intelligence">Why an argument lands: who says it, how it feels, the logic, the timing.</span></span><span class="p-h3">From every angle</span></button><p class="p-small p-muted">Why people decide what they decide, written as numbers for machines and plain words for&nbsp;people.</p></div></div>
     </div>
   </section>
 
@@ -1674,6 +1685,70 @@ html, html body { color-scheme: var(--c-scheme); background: var(--c-ground); co
     closeT = setTimeout(function () { fold.removeAttribute('data-open'); }, 450);
   });
   fold.addEventListener('focusout', function (e) { if (!fold.contains(e.relatedTarget)) fold.removeAttribute('data-dismissed'); });
+})();
+</script>
+
+<script>
+(function () {
+  var fine = window.matchMedia('(hover: hover) and (pointer: fine)'), still = window.matchMedia('(prefers-reduced-motion: reduce)');
+  // one move per plate, from its drawing: x and y run -1 to 1 across the plate, o is how present the pointer is
+  var MOVES = {
+    'persona-engine': function (L, x, y, o) {          // the modeled rooms open out of the person, like nested dolls
+      L.person.style.transform = 'translate(' + (-x * 2 * o).toFixed(2) + 'px,' + (-y * 1.5 * o).toFixed(2) + 'px)';
+      L.room1.style.transform = 'translate(' + (x * 6 * o).toFixed(2) + 'px,' + (y * 4 * o).toFixed(2) + 'px) scale(' + (1 + 0.015 * o).toFixed(4) + ')';
+      L.room2.style.transform = 'translate(' + (x * 12 * o).toFixed(2) + 'px,' + (y * 8 * o).toFixed(2) + 'px) scale(' + (1 + 0.03 * o).toFixed(4) + ')';
+    },
+    'persuasive-intelligence': function (L, x, y, o) { // light through a prism: the statement comes in at an angle, the rays fan
+      L.statement.style.transform = 'rotate(' + (y * 3 * o).toFixed(3) + 'deg)';
+      L.prism.style.transform = 'rotate(' + (x * 1.5 * o).toFixed(3) + 'deg)';
+      for (var k = 0; k < 4; k++) {
+        var r = 'rotate(' + (((k - 1.5) * x * 1.2 + y * 1.5) * o).toFixed(3) + 'deg)';
+        L['ray' + (k + 1)].style.transform = r; L['name' + (k + 1)].style.transform = r;
+      }
+    },
+    'data-storytelling': function (L, x, y, o) {       // from afar: the public tips back into a plane; the line stands above it
+      L.public.style.transform = 'rotateX(' + ((6 + y * 3) * o).toFixed(3) + 'deg) rotateY(' + (x * 2.5 * o).toFixed(3) + 'deg)';
+      L.line.style.transform = 'translate(' + (-x * 3 * o).toFixed(2) + 'px,' + (-6 * o).toFixed(2) + 'px)';
+    }
+  };
+  var all = [];
+  Array.prototype.slice.call(document.querySelectorAll('.p5-layers')).forEach(function (box) {
+    var move = MOVES[box.getAttribute('data-plate')]; if (!move) return;
+    var L = {}; box.querySelectorAll('.p5-layer').forEach(function (l) { L[l.getAttribute('data-layer')] = l; });
+    var hit = box.closest('.p-plate') || box, t = { x: 0, y: 0, o: 0 }, c = { x: 0, y: 0, o: 0 }, raf = null, vis = false, finger = false;
+    function clamp(v) { return Math.max(-1, Math.min(1, v)); }
+    function aimScroll() {                                // touch, no finger: the plate moves a little as it crosses the screen
+      if (!vis) { t.o = 0; return; }
+      var r = box.getBoundingClientRect(), p = Math.max(0, Math.min(1, (innerHeight - r.top) / (innerHeight + r.height)));
+      t.x = -0.8 + 1.6 * p; t.y = 0; t.o = 0.5 * Math.sin(Math.PI * p);
+    }
+    function step() {
+      raf = null;
+      if (!fine.matches && !finger) aimScroll();
+      c.x += (t.x - c.x) * 0.08; c.y += (t.y - c.y) * 0.08; c.o += (t.o - c.o) * 0.08;
+      move(L, c.x, c.y, c.o);
+      if (finger || Math.abs(t.x - c.x) + Math.abs(t.y - c.y) + Math.abs(t.o - c.o) > 0.002) raf = requestAnimationFrame(step);
+      else if (!t.o) for (var k in L) L[k].style.transform = '';
+    }
+    function kick() { if (!raf && !still.matches) raf = requestAnimationFrame(step); }
+    function at(px, py) { var r = box.getBoundingClientRect(); t.x = clamp((px - r.left) / r.width * 2 - 1); t.y = clamp((py - r.top) / r.height * 2 - 1); }
+    hit.addEventListener('pointermove', function (e) { if (!fine.matches || e.pointerType === 'touch') return; at(e.clientX, e.clientY); t.o = 1; kick(); }, { passive: true });
+    hit.addEventListener('pointerleave', function (e) { if (e.pointerType === 'touch') return; t.o = 0; kick(); });
+    hit.addEventListener('focus', function () { if (!fine.matches) return; t.x = 0.4; t.y = -0.2; t.o = 1; kick(); });
+    hit.addEventListener('blur', function () { if (!fine.matches) return; t.o = 0; kick(); });
+    hit.addEventListener('touchstart', function (e) {
+      if (fine.matches || e.touches.length !== 1) return; var p = e.touches[0];
+      if (p.clientX < 24 || p.clientX > innerWidth - 24) return;
+      finger = true; at(p.clientX, p.clientY); t.o = 1; kick();
+    }, { passive: true });
+    hit.addEventListener('touchmove', function (e) { if (!finger || e.touches.length !== 1) return; var p = e.touches[0]; at(p.clientX, p.clientY); kick(); }, { passive: true });
+    function lift() { finger = false; kick(); }
+    hit.addEventListener('touchend', lift, { passive: true }); hit.addEventListener('touchcancel', lift, { passive: true });
+    if ('IntersectionObserver' in window) new IntersectionObserver(function (es) { vis = es[0].isIntersecting; kick(); }).observe(box);
+    all.push(kick);
+  });
+  var q = false;
+  addEventListener('scroll', function () { if (fine.matches || q) return; q = true; requestAnimationFrame(function () { q = false; all.forEach(function (k) { k(); }); }); }, { passive: true });
 })();
 </script>
 </body>

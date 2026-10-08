@@ -514,6 +514,17 @@ html, html body { color-scheme: var(--c-scheme); background: var(--c-ground); co
   .p-cta > .p5-sheen--over { -webkit-mask-image: linear-gradient(var(--grad-feature-dir), transparent 0%, transparent calc(var(--grad-feature-solid) - 4%), #000 calc(var(--grad-feature-solid) + 18%));
                              mask-image: linear-gradient(var(--grad-feature-dir), transparent 0%, transparent calc(var(--grad-feature-solid) - 4%), #000 calc(var(--grad-feature-solid) + 18%)); }
   @media (prefers-reduced-motion: reduce) { .p5-sheen { display: none; } }
+  /* plates in layers (R-IMG-04): one move per plate, from what its drawing means; small, pointer-driven, never autoplayed */
+  .p5-layers { position: absolute; inset: 0; perspective: 900px; }
+  .p5-layer { position: absolute; inset: 0; transform-origin: 50% 50%; }
+  .p5-layer::before, .p5-layer::after { content: ""; position: absolute; inset: 0; -webkit-mask-size: cover; mask-size: cover; -webkit-mask-position: center; mask-position: center; }
+  .p5-layer::before { background: var(--p5-ground); -webkit-mask-image: var(--foot); mask-image: var(--foot); }
+  .p5-layer::after { background: var(--c-plate); -webkit-mask-image: var(--ink); mask-image: var(--ink); }
+  .p5-layers[data-plate="persona-engine"] .p5-layer { transform-origin: 28.9% 100%; }
+  .p5-layers[data-plate="persuasive-intelligence"] [data-layer="statement"] { transform-origin: 32.9% 50.2%; }
+  .p5-layers[data-plate="persuasive-intelligence"] [data-layer^="ray"], .p5-layers[data-plate="persuasive-intelligence"] [data-layer^="name"] { transform-origin: 51.6% 50.9%; }
+  .p5-layers[data-plate="persuasive-intelligence"] [data-layer="prism"] { transform-origin: 42.1% 57.9%; }
+  .p5-layers[data-plate="data-storytelling"] [data-layer="public"] { transform-origin: 50% 82.5%; }
   /* the plate light: light passing over a print. It falls on the ink only (the plate's dot layer as a mask), never on the
      paper, which is the page's own ground; no tilt (R-IMG-04) */
   .p5-sheen--plate { background: radial-gradient(circle at var(--lx, 50%) var(--ly, 50%), color-mix(in srgb, #FFFFFF 85%, transparent) 0%, transparent 44.6%);
