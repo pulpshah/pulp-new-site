@@ -681,6 +681,82 @@ html, html body { color-scheme: var(--c-scheme); background: var(--c-ground); co
   [data-drift] { transform: translate3d(0, var(--drift, 0px), 0); will-change: transform; }
   @media (prefers-reduced-motion: reduce) { [data-drift] { transform: none; will-change: auto; } }
 }
+
+  /* hover reels on the home ledger: rows lift, the rest dim, a reel follows the cursor */
+  .p5-reelled .p5-ledger__row { position: relative; padding-inline: var(--s-16); margin-inline: calc(-1 * var(--s-16)); border-radius: var(--r-6);
+    transition: opacity var(--dur-quick) var(--ease-arrive), background-color var(--dur-quick) var(--ease-arrive); }
+  [data-js] .p5-reelled .p5-ledger__row { cursor: default; }
+  .p5-reelled .p5-ledger__row:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
+  .p5-reelled.is-live .p5-ledger__row { opacity: 0.45; }
+  .p5-reelled.is-live .p5-ledger__row.is-hot { opacity: 1; background: color-mix(in srgb, var(--c-type) 6%, transparent); }
+  .p5-reel { position: fixed; inset-block-start: 0; inset-inline-start: 0; z-index: 40; width: 300px; max-width: calc(100vw - 32px);
+    padding: var(--s-12); border-radius: var(--r-6); background: var(--c-band); color: var(--c-type);
+    box-shadow: 0 0 0 var(--line-w) var(--c-line), 0 18px 40px -18px color-mix(in srgb, #000 55%, transparent);
+    pointer-events: none; opacity: 0; scale: 0.94; transform: translate3d(var(--x, -999px), var(--y, -999px), 0);
+    transition: opacity var(--dur-quick) var(--ease-arrive), scale var(--dur-quick) var(--ease-arrive); will-change: transform, opacity; }
+  .p5-reel.is-on { opacity: 1; scale: 1; }
+  .p5-reel__stage { position: relative; aspect-ratio: 4 / 3; overflow: hidden; border-radius: 4px; background: var(--c-ground); }
+  .p5-reel__set, .p5-reel__slide { position: absolute; inset: 0; display: none; }
+  .p5-reel__set.is-on, .p5-reel__slide.is-on { display: block; }
+  .p5-reel__slide { display: none; place-items: center; }
+  .p5-reel__slide.is-on { display: grid; }
+  .rv-svg { width: 100%; height: 100%; display: block; overflow: visible; }
+  .rv-symwrap { width: 66%; color: var(--c-type); --p5-ground: var(--c-ground); }
+  .rv-symwrap svg { width: 100%; height: auto; display: block; }
+  .rv-h { font-family: var(--f-display); font-weight: 800; font-size: 46px; letter-spacing: -0.01em; fill: currentColor; }
+  .rv-h--m { font-size: 34px; }
+  .rv-ghost { fill: none; stroke: currentColor; stroke-width: 1.4; }
+  .rv-b { font-family: var(--f-reading); font-size: 18px; fill: currentColor; }
+  .rv-b--l { font-size: 24px; font-weight: 600; }
+  .rv-s { font-family: var(--f-display); font-size: 12px; font-weight: 700; letter-spacing: 0.12em; fill: var(--c-muted); }
+  .rv-mid { text-anchor: middle; }
+  .rv-q { font-family: var(--f-display); font-weight: 800; font-size: 64px; fill: currentColor; }
+  .rv-sup { font-family: var(--f-display); font-weight: 800; font-size: 16px; fill: currentColor; }
+  .rv-link { fill: var(--c-link); }
+  .p5-reel__bar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin-block-start: var(--s-8); }
+  .p5-reel__bar i { display: block; height: 3px; border-radius: 2px; background: var(--c-line); overflow: hidden; }
+  .p5-reel__bar b { display: block; height: 100%; width: 0; background: currentColor; }
+  .p5-reel__bar i.is-done b { width: 100%; }
+  .p5-reel__bar i.is-now b { animation: rv-fill 1500ms linear forwards; }
+  .p5-reel__nav { display: none; }
+  /* inline: touch, or reduced motion. The reel opens under its row, with buttons */
+  .p5-reel.is-inline { position: static; width: auto; max-width: 420px; transform: none; scale: 1; opacity: 1; pointer-events: auto;
+    grid-column: 1 / -1; margin-block-start: var(--s-16); box-shadow: 0 0 0 var(--line-w) var(--c-line); transition: none; }
+  .p5-reel.is-inline .p5-reel__nav { display: flex; justify-content: flex-end; gap: var(--s-8); margin-block-start: var(--s-8); }
+  .p5-reel__btn { display: inline-grid; place-items: center; width: 44px; height: 44px; border: 0; border-radius: var(--r-pill);
+    background: transparent; color: inherit; box-shadow: inset 0 0 0 var(--line-w) var(--c-line); cursor: pointer; }
+  .p5-reel__btn:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
+
+  /* the pieces: each starts from its first frame when its slide comes on */
+  .p5-reel__slide.is-on .rv-in { animation: rv-in 420ms var(--ease-arrive) both; animation-delay: var(--d, 0s); }
+  .p5-reel__slide.is-on .rv-draw { stroke-dasharray: var(--len); animation: rv-draw 600ms var(--ease-arrive) both; animation-delay: var(--d, 0s); }
+  .p5-reel__slide.is-on .rv-blip { animation: rv-blip 400ms linear both; animation-delay: var(--d, 0s); }
+  .p5-reel__slide.is-on .rv-grow, .p5-reel__slide.is-on .rv-shrink, .p5-reel__slide.is-on .rv-narrow,
+  .p5-reel__slide.is-on .rv-stamp, .p5-reel__slide.is-on .rv-rise { transform-box: view-box; animation-duration: 700ms; animation-fill-mode: both;
+    animation-timing-function: var(--ease-arrive); animation-delay: var(--d, 0s); }
+  .p5-reel__slide.is-on .rv-grow { animation-name: rv-grow; }
+  .p5-reel__slide.is-on .rv-shrink { animation-name: rv-shrink; }
+  .p5-reel__slide.is-on .rv-narrow { animation-name: rv-narrow; }
+  .p5-reel__slide.is-on .rv-stamp { animation-name: rv-stamp; animation-duration: 360ms; }
+  .p5-reel__slide.is-on .rv-rise { animation-name: rv-rise; }
+  .rv-shrink, .rv-narrow { transform-box: view-box; }
+  .rv-shrink { transform: scaleX(0.34); } .rv-narrow { transform: scaleX(0.42); } .rv-grow { transform: scaleX(0.72); }
+  .rv-blip { opacity: 0; }
+  @keyframes rv-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  @keyframes rv-draw { from { stroke-dashoffset: var(--len); } to { stroke-dashoffset: 0; } }
+  @keyframes rv-blip { 0% { opacity: 0; } 15% { opacity: 1; } 85% { opacity: 1; } 100% { opacity: 0; } }
+  @keyframes rv-grow { from { transform: scaleX(0); } to { transform: scaleX(0.72); } }
+  @keyframes rv-shrink { from { transform: scaleX(1); } to { transform: scaleX(0.34); } }
+  @keyframes rv-narrow { from { transform: scaleX(1); } to { transform: scaleX(0.42); } }
+  @keyframes rv-stamp { from { opacity: 0; transform: scale(1.5); } to { opacity: 1; transform: none; } }
+  @keyframes rv-rise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+  @keyframes rv-fill { from { width: 0; } to { width: 100%; } }
+  .p5-reel__set [data-grow-rect] { transform-box: view-box; }
+  @media (prefers-reduced-motion: reduce) {
+    .p5-reel__slide.is-on * { animation: none !important; }
+    .p5-reel__slide .rv-blip { opacity: 0; }
+    .p5-reel__bar { display: none; }
+  }
 </style>
 <script>
 (function () {
@@ -1032,6 +1108,101 @@ html, html body { color-scheme: var(--c-scheme); background: var(--c-ground); co
     });
   }
 })();
+
+  /* hover reels: follow on fine pointers with hover; inline on touch or reduced motion */
+  (function () {
+    var list = document.querySelector('.p5-reelled'), reel = document.getElementById('reel');
+    if (!list || !reel) return;
+    var rows = Array.prototype.slice.call(list.querySelectorAll('.p5-ledger__row'));
+    var segs = Array.prototype.slice.call(reel.querySelectorAll('.p5-reel__bar i'));
+    var fine = window.matchMedia('(hover: hover) and (pointer: fine)'), still = window.matchMedia('(prefers-reduced-motion: reduce)');
+    var DWELL = 1500, set = null, slides = [], i = 0, timer = null, hot = null;
+    var tx = 0, ty = 0, x = 0, y = 0, raf = null, home = document.body, nextSib = null;
+    document.body.appendChild(reel);   // fixed position needs a parent without transforms
+    function inline() { return !fine.matches || still.matches; }
+    function show(k) {
+      slides.forEach(function (s) { s.classList.remove('is-on'); });
+      i = (k + slides.length) % slides.length;
+      void reel.offsetWidth;   // restart the piece's animations from its first frame
+      slides[i].classList.add('is-on');
+      segs.forEach(function (sg, n) { sg.classList.toggle('is-done', n < i); sg.classList.remove('is-now'); });
+      void reel.offsetWidth;
+      if (segs[i]) segs[i].classList.add('is-now');
+      clearTimeout(timer);
+      if (!still.matches) timer = setTimeout(function () { show(i + 1); }, DWELL);
+    }
+    function pick(row) {
+      var key = row.getAttribute('data-reel');
+      reel.querySelectorAll('.p5-reel__set').forEach(function (s) { s.classList.toggle('is-on', s.getAttribute('data-reel') === key); });
+      set = reel.querySelector('.p5-reel__set.is-on');
+      slides = Array.prototype.slice.call(set.querySelectorAll('.p5-reel__slide'));
+    }
+    function place() {
+      raf = null;
+      x += (tx - x) * 0.2; y += (ty - y) * 0.2;
+      reel.style.setProperty('--x', x.toFixed(1) + 'px'); reel.style.setProperty('--y', y.toFixed(1) + 'px');
+      if (Math.abs(tx - x) > 0.3 || Math.abs(ty - y) > 0.3) raf = requestAnimationFrame(place);
+    }
+    function aim(cx, cy, snap) {
+      // across: centered on the cursor. Up and down: just above the hovered row, or just below it
+      // when there is no room above, so the row's own words always stay readable.
+      var w = reel.offsetWidth || 300, h = reel.offsetHeight || 250, gap = 14;
+      var nx = Math.min(Math.max(cx - w / 2, 16), innerWidth - w - 16), ny = cy - h - 32;
+      if (hot) { var b = hot.getBoundingClientRect(); ny = b.top - gap - h; if (ny < 16) ny = b.bottom + gap; }
+      tx = nx; ty = Math.min(Math.max(ny, 16), innerHeight - h - 16);
+      if (snap) { x = tx; y = ty; }
+      if (!raf) raf = requestAnimationFrame(place);
+    }
+    function on(row, how) {
+      if (hot === row && reel.classList.contains('is-on')) return;
+      rows.forEach(function (r) { r.classList.toggle('is-hot', r === row); });
+      list.classList.add('is-live'); hot = row; pick(row);
+      reel.hidden = false;
+      if (how === 'focus') { var b = row.getBoundingClientRect(); aim(b.left + b.width * 0.5, b.top, true); }
+      requestAnimationFrame(function () { reel.classList.add('is-on'); });
+      show(0);
+    }
+    function off() {
+      clearTimeout(timer); hot = null;
+      list.classList.remove('is-live'); rows.forEach(function (r) { r.classList.remove('is-hot'); });
+      reel.classList.remove('is-on');
+      setTimeout(function () { if (!reel.classList.contains('is-on') && !reel.classList.contains('is-inline')) reel.hidden = true; }, 220);
+    }
+    function closeInline() {
+      reel.classList.remove('is-inline', 'is-on'); reel.hidden = true; clearTimeout(timer);
+      home.insertBefore(reel, nextSib);
+      rows.forEach(function (r) { r.setAttribute('aria-expanded', 'false'); });
+      off();
+    }
+    function openInline(row) {
+      if (hot === row && reel.classList.contains('is-inline')) { closeInline(); return; }
+      rows.forEach(function (r) { r.setAttribute('aria-expanded', r === row ? 'true' : 'false'); });
+      row.appendChild(reel); reel.classList.add('is-inline');
+      hot = null; on(row, 'tap');
+    }
+    rows.forEach(function (row) {
+      row.setAttribute('tabindex', '0');
+      row.addEventListener('pointerenter', function (e) { if (inline() || e.pointerType === 'touch') return; var fresh = !reel.classList.contains('is-on'); on(row, 'hover'); aim(e.clientX, e.clientY, fresh); });
+      row.addEventListener('focus', function () { if (inline()) return; on(row, 'focus'); });
+      row.addEventListener('blur', function () { if (inline()) return; off(); });
+      row.addEventListener('click', function (e) { if (!inline() || e.target.closest('.p5-reel')) return; openInline(row); });
+      row.addEventListener('keydown', function (e) {
+        if (!inline() || (e.key !== 'Enter' && e.key !== ' ') || e.target !== row) return; e.preventDefault(); openInline(row);
+      });
+    });
+    function syncRoles() {
+      rows.forEach(function (r) { if (inline()) { r.setAttribute('role', 'button'); r.setAttribute('aria-expanded', 'false'); } else { r.removeAttribute('role'); r.removeAttribute('aria-expanded'); } });
+      if (!inline() && reel.classList.contains('is-inline')) closeInline();
+    }
+    syncRoles();
+    [fine, still].forEach(function (m) { if (m.addEventListener) m.addEventListener('change', syncRoles); });
+    list.addEventListener('pointermove', function (e) { if (!inline() && hot) aim(e.clientX, e.clientY); }, { passive: true });
+    list.addEventListener('pointerleave', function () { if (!inline()) off(); });
+    addEventListener('scroll', function () { if (!inline() && hot && !list.matches(':hover')) off(); }, { passive: true });
+    reel.querySelectorAll('.p5-reel__btn').forEach(function (b) {
+      b.addEventListener('click', function (e) { e.stopPropagation(); show(i + (+b.getAttribute('data-step'))); });
+    });
+  })();
 </script>
 
 <script>
