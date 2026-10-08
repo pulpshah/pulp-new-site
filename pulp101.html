@@ -682,13 +682,15 @@ html, html body { color-scheme: var(--c-scheme); background: var(--c-ground); co
   @media (prefers-reduced-motion: reduce) { [data-drift] { transform: none; will-change: auto; } }
 }
 
-  /* hover reels on the home ledger: rows lift, the rest dim, a reel follows the cursor */
-  .p5-reelled .p5-ledger__row { position: relative; padding-inline: var(--s-16); margin-inline: calc(-1 * var(--s-16)); border-radius: var(--r-6);
-    transition: opacity var(--dur-quick) var(--ease-arrive), background-color var(--dur-quick) var(--ease-arrive); }
-  [data-js] .p5-reelled .p5-ledger__row { cursor: default; }
-  .p5-reelled .p5-ledger__row:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
-  .p5-reelled.is-live .p5-ledger__row { opacity: 0.45; }
-  .p5-reelled.is-live .p5-ledger__row.is-hot { opacity: 1; background: color-mix(in srgb, var(--c-type) 6%, transparent); }
+  /* hover reels on every table: the hovered row lifts, the rest dim, a reel follows the cursor */
+  .p5-reelled [data-reel] { position: relative; border-radius: var(--r-6);
+    transition: opacity var(--dur-quick) var(--ease-arrive), background-color var(--dur-quick) var(--ease-arrive), box-shadow var(--dur-quick) var(--ease-arrive); }
+  .p5-reelled .p5-ledger__row[data-reel] { padding-inline: var(--s-16); margin-inline: calc(-1 * var(--s-16)); }
+  [data-js] .p5-reelled [data-reel] { cursor: default; }
+  .p5-reelled [data-reel]:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
+  .p5-reelled.is-live [data-reel] { opacity: 0.45; }
+  .p5-reelled.is-live [data-reel].is-hot { opacity: 1; background: color-mix(in srgb, var(--c-type) 6%, transparent); }
+  .p5-reelled.is-live [data-reel].is-hot:not(.p5-ledger__row) { box-shadow: 0 0 0 var(--s-12) color-mix(in srgb, var(--c-type) 6%, transparent); }
   .p5-reel { position: fixed; inset-block-start: 0; inset-inline-start: 0; z-index: 40; width: 300px; max-width: calc(100vw - 32px);
     padding: var(--s-12); border-radius: var(--r-6); background: var(--c-band); color: var(--c-type);
     box-shadow: 0 0 0 var(--line-w) var(--c-line), 0 18px 40px -18px color-mix(in srgb, #000 55%, transparent);
@@ -757,6 +759,73 @@ html, html body { color-scheme: var(--c-scheme); background: var(--c-ground); co
     .p5-reel__slide .rv-blip { opacity: 0; }
     .p5-reel__bar { display: none; }
   }
+
+  /* motion for round 2: each class runs from its first frame to the last frame the boards show */
+  .p5-reel__slide.is-on .rv-tilt, .p5-reel__slide.is-on .rv-push, .p5-reel__slide.is-on .rv-fall, .p5-reel__slide.is-on .rv-sink, .p5-reel__slide.is-on .rv-drop, .p5-reel__slide.is-on .rv-mute, .p5-reel__slide.is-on .rv-phase, .p5-reel__slide.is-on .rv-land, .p5-reel__slide.is-on .rv-needle, .p5-reel__slide.is-on .rv-walk, .p5-reel__slide.is-on .rv-walk2, .p5-reel__slide.is-on .rv-walk3, .p5-reel__slide.is-on .rv-knob, .p5-reel__slide.is-on .rv-knob2, .p5-reel__slide.is-on .rv-tug, .p5-reel__slide.is-on .rv-open, .p5-reel__slide.is-on .rv-slide, .p5-reel__slide.is-on .rv-move, .p5-reel__slide.is-on .rv-move2, .p5-reel__slide.is-on .rv-hire, .p5-reel__slide.is-on .rv-pick, .p5-reel__slide.is-on .rv-point, .p5-reel__slide.is-on .rv-press, .p5-reel__slide.is-on .rv-tap { animation-duration: 700ms; animation-fill-mode: both; animation-timing-function: var(--ease-arrive); animation-delay: var(--d, 0s); }
+  .p5-reel__slide.is-on .rv-tilt { animation-name: rv-k-tilt; }
+  @keyframes rv-k-tilt { from { transform: none; } to { transform: rotate(-8deg); } }
+  .p5-reel__slide.is-on .rv-push { animation-name: rv-k-push; }
+  @keyframes rv-k-push { from { transform: none; } to { transform: translateX(14px); } }
+  .p5-reel__slide.is-on .rv-fall { animation-name: rv-k-fall; }
+  @keyframes rv-k-fall { from { opacity: 0; transform: translateY(-50px); } to { opacity: 1; transform: none; } }
+  .p5-reel__slide.is-on .rv-sink { animation-name: rv-k-sink; }
+  @keyframes rv-k-sink { from { transform: none; } to { transform: translateY(150px); } }
+  .p5-reel__slide.is-on .rv-drop { animation-name: rv-k-drop; }
+  @keyframes rv-k-drop { from { opacity: 0; transform: translateY(-40px); } to { opacity: 1; transform: none; } }
+  .p5-reel__slide.is-on .rv-mute { animation-name: rv-k-mute; }
+  @keyframes rv-k-mute { from { opacity: 1; } to { opacity: 0.35; } }
+  .p5-reel__slide.is-on .rv-phase { animation-name: rv-k-phase; }
+  @keyframes rv-k-phase { from { transform: none; } to { transform: translateY(-40px); } }
+  .p5-reel__slide.is-on .rv-land { animation-name: rv-k-land; }
+  @keyframes rv-k-land { from { opacity: 0; transform: translate(60px, -50px); } to { opacity: 1; transform: none; } }
+  .p5-reel__slide.is-on .rv-needle { animation-name: rv-k-needle; }
+  @keyframes rv-k-needle { from { transform: rotate(-70deg); } to { transform: none; } }
+  .p5-reel__slide.is-on .rv-walk { animation-name: rv-k-walk; }
+  @keyframes rv-k-walk { from { transform: none; } to { transform: translateX(200px); } }
+  .p5-reel__slide.is-on .rv-walk2 { animation-name: rv-k-walk2; }
+  @keyframes rv-k-walk2 { from { transform: none; } to { transform: translateX(150px); } }
+  .p5-reel__slide.is-on .rv-walk3 { animation-name: rv-k-walk3; }
+  @keyframes rv-k-walk3 { from { transform: none; } to { transform: translate(130px, -80px); } }
+  .p5-reel__slide.is-on .rv-knob { animation-name: rv-k-knob; }
+  @keyframes rv-k-knob { from { transform: none; } to { transform: translateX(30px); } }
+  .p5-reel__slide.is-on .rv-knob2 { animation-name: rv-k-knob2; }
+  @keyframes rv-k-knob2 { from { transform: translateX(96px); } to { transform: none; } }
+  .p5-reel__slide.is-on .rv-tug { animation-name: rv-k-tug; }
+  @keyframes rv-k-tug { from { transform: none; } to { transform: translateX(60px); } }
+  .p5-reel__slide.is-on .rv-open { animation-name: rv-k-open; }
+  @keyframes rv-k-open { from { transform: none; } to { transform: skewY(-10deg); } }
+  .p5-reel__slide.is-on .rv-slide { animation-name: rv-k-slide; }
+  @keyframes rv-k-slide { from { opacity: 0; transform: translateX(60px); } to { opacity: 1; transform: none; } }
+  .p5-reel__slide.is-on .rv-move { animation-name: rv-k-move; }
+  @keyframes rv-k-move { from { transform: none; } to { transform: translateX(120px); } }
+  .p5-reel__slide.is-on .rv-move2 { animation-name: rv-k-move2; }
+  @keyframes rv-k-move2 { from { transform: none; } to { transform: translateX(32px); } }
+  .p5-reel__slide.is-on .rv-hire { animation-name: rv-k-hire; }
+  @keyframes rv-k-hire { from { transform: none; } to { transform: translateX(110px); } }
+  .p5-reel__slide.is-on .rv-pick { animation-name: rv-k-pick; }
+  @keyframes rv-k-pick { from { transform: none; } to { transform: translateY(48px); } }
+  .p5-reel__slide.is-on .rv-point { animation-name: rv-k-point; }
+  @keyframes rv-k-point { from { opacity: 0; transform: translate(30px, 30px); } to { opacity: 1; transform: none; } }
+  .p5-reel__slide.is-on .rv-press { animation-name: rv-k-press; }
+  @keyframes rv-k-press { from { transform: scale(1.12); } to { transform: none; } }
+  .p5-reel__slide.is-on .rv-tap { animation-name: rv-k-tap; }
+  @keyframes rv-k-tap { from { opacity: 1; transform: scale(0.4); } to { opacity: 0.5; transform: none; } }
+  .rv-point, .rv-press, .rv-tap, .rv-needle, .rv-land, .rv-fall, .rv-drop, .rv-slide { transform-box: view-box; }
+
+  .rv-end { text-anchor: end; } .rv-inv { fill: var(--c-ground); } .rv-type { fill: currentColor; font-weight: 600; }
+  .rv-grow2 { transform: scaleX(0.48); } .rv-grow3 { transform: scaleX(0.86); }
+  .p5-reel__slide.is-on .rv-grow2 { animation: rv-grow2 700ms var(--ease-arrive) both; animation-delay: var(--d, 0s); }
+  .p5-reel__slide.is-on .rv-grow3 { animation: rv-grow3 700ms var(--ease-arrive) both; animation-delay: var(--d, 0s); }
+  @keyframes rv-grow2 { from { transform: scaleX(0); } to { transform: scaleX(0.48); } }
+  @keyframes rv-grow3 { from { transform: scaleX(0); } to { transform: scaleX(0.86); } }
+  .rv-tilt { transform: rotate(-8deg); } .rv-push { transform: translateX(14px); } .rv-fall, .rv-drop { transform: none; } .rv-sink { transform: translateY(150px); }
+  .rv-mute { opacity: 0.35; } .rv-phase { transform: translateY(-40px); } .rv-land, .rv-needle { transform: none; }
+  .rv-walk { transform: translateX(200px); } .rv-walk2 { transform: translateX(150px); } .rv-walk3 { transform: translate(130px, -80px); }
+  .rv-knob { transform: translateX(30px); } .rv-knob2 { transform: none; } .rv-tug { transform: translateX(60px); } .rv-open { transform: skewY(-10deg); }
+  .rv-slide, .rv-move, .rv-move2, .rv-hire, .rv-pick, .rv-point, .rv-press { transform: none; } .rv-move { transform: translateX(120px); }
+  .rv-move2 { transform: translateX(32px); } .rv-hire { transform: translateX(110px); } .rv-pick { transform: translateY(48px); }
+  .rv-tap { opacity: 0.5; }
+  .rv-sink, .rv-tilt, .rv-push, .rv-phase, .rv-walk, .rv-walk2, .rv-walk3, .rv-knob, .rv-knob2, .rv-tug, .rv-open, .rv-move, .rv-move2, .rv-hire, .rv-pick { transform-box: view-box; }
 </style>
 <script>
 (function () {
@@ -1110,9 +1179,9 @@ html, html body { color-scheme: var(--c-scheme); background: var(--c-ground); co
 
   /* hover reels: follow on fine pointers with hover; inline on touch or reduced motion */
   (function () {
-    var list = document.querySelector('.p5-reelled'), reel = document.getElementById('reel');
-    if (!list || !reel) return;
-    var rows = Array.prototype.slice.call(list.querySelectorAll('.p5-ledger__row'));
+    var lists = Array.prototype.slice.call(document.querySelectorAll('.p5-reelled')), reel = document.getElementById('reel'), list = null;
+    if (!lists.length || !reel) return;
+    var rows = Array.prototype.slice.call(document.querySelectorAll('.p5-reelled [data-reel]'));
     var segs = Array.prototype.slice.call(reel.querySelectorAll('.p5-reel__bar i'));
     var fine = window.matchMedia('(hover: hover) and (pointer: fine)'), still = window.matchMedia('(prefers-reduced-motion: reduce)');
     var DWELL = 1500, set = null, slides = [], i = 0, timer = null, hot = null;
@@ -1155,7 +1224,8 @@ html, html body { color-scheme: var(--c-scheme); background: var(--c-ground); co
     function on(row, how) {
       if (hot === row && reel.classList.contains('is-on')) return;
       rows.forEach(function (r) { r.classList.toggle('is-hot', r === row); });
-      list.classList.add('is-live'); hot = row; pick(row);
+      if (list && list !== row.closest('.p5-reelled')) list.classList.remove('is-live');
+      list = row.closest('.p5-reelled'); list.classList.add('is-live'); hot = row; pick(row);
       reel.hidden = false;
       if (how === 'focus') { var b = row.getBoundingClientRect(); aim(b.left + b.width * 0.5, b.top, true); }
       requestAnimationFrame(function () { reel.classList.add('is-on'); });
@@ -1163,7 +1233,7 @@ html, html body { color-scheme: var(--c-scheme); background: var(--c-ground); co
     }
     function off() {
       clearTimeout(timer); hot = null;
-      list.classList.remove('is-live'); rows.forEach(function (r) { r.classList.remove('is-hot'); });
+      lists.forEach(function (l) { l.classList.remove('is-live'); }); rows.forEach(function (r) { r.classList.remove('is-hot'); });
       reel.classList.remove('is-on');
       setTimeout(function () { if (!reel.classList.contains('is-on') && !reel.classList.contains('is-inline')) reel.hidden = true; }, 220);
     }
@@ -1195,9 +1265,11 @@ html, html body { color-scheme: var(--c-scheme); background: var(--c-ground); co
     }
     syncRoles();
     [fine, still].forEach(function (m) { if (m.addEventListener) m.addEventListener('change', syncRoles); });
-    list.addEventListener('pointermove', function (e) { if (!inline() && hot) aim(e.clientX, e.clientY); }, { passive: true });
-    list.addEventListener('pointerleave', function () { if (!inline()) off(); });
-    addEventListener('scroll', function () { if (!inline() && hot && !list.matches(':hover')) off(); }, { passive: true });
+    lists.forEach(function (l) {
+      l.addEventListener('pointermove', function (e) { if (!inline() && hot) aim(e.clientX, e.clientY); }, { passive: true });
+      l.addEventListener('pointerleave', function () { if (!inline()) off(); });
+    });
+    addEventListener('scroll', function () { if (!inline() && hot && list && !list.matches(':hover')) off(); }, { passive: true });
     reel.querySelectorAll('.p5-reel__btn').forEach(function (b) {
       b.addEventListener('click', function (e) { e.stopPropagation(); show(i + (+b.getAttribute('data-step'))); });
     });
