@@ -514,6 +514,12 @@ html, html body { color-scheme: var(--c-scheme); background: var(--c-ground); co
   .p-cta > .p5-sheen--over { -webkit-mask-image: linear-gradient(var(--grad-feature-dir), transparent 0%, transparent calc(var(--grad-feature-solid) - 4%), #000 calc(var(--grad-feature-solid) + 18%));
                              mask-image: linear-gradient(var(--grad-feature-dir), transparent 0%, transparent calc(var(--grad-feature-solid) - 4%), #000 calc(var(--grad-feature-solid) + 18%)); }
   @media (prefers-reduced-motion: reduce) { .p5-sheen { display: none; } }
+  /* the plate's label is glass, as the kit says (R-IMG-20, R-GLS-04): the Pulp veil over a blur, the text halo for
+     contrast over the dots, and the same hairline as the folded bar's menu; the near-opaque veil only without blur */
+  .p-plate__label { background: color-mix(in srgb, var(--glass-ground) var(--glass-veil), transparent); text-shadow: var(--glass-halo);
+    box-shadow: inset 0 0 0 var(--line-w) var(--c-line); }
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .p-plate__label { background: color-mix(in srgb, var(--glass-ground) var(--glass-veil-fallback), transparent); } }
   /* plates in layers (R-IMG-04): one move per plate, from what its drawing means; small, pointer-driven, never autoplayed */
   .p5-layers { position: absolute; inset: 0; perspective: 900px; }
   .p5-layer { position: absolute; inset: 0; transform-origin: 50% 50%; }
