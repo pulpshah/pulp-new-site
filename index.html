@@ -502,6 +502,33 @@ html, html body { color-scheme: var(--c-scheme); background: var(--c-ground); co
   .p-cta[data-size="climax"] .p-cta__text > p { max-width: var(--col); }
 }
 
+  .p5-past { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: minmax(0, 1fr); column-gap: var(--s-32); }
+  @media (min-width: 768px) { .p5-past { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .p5-past__item { display: grid; grid-template-columns: 40px minmax(0, 1fr); gap: var(--s-16); align-items: start; padding-block: var(--s-16); border-block-start: var(--line-w) solid var(--c-line); }
+  .p5-past__main { display: flex; flex-direction: column; gap: var(--s-4); min-width: 0; }
+  .p5-school { display: block; flex: none; color: var(--c-type); --p5-disc: color-mix(in srgb, var(--c-type) 12%, var(--p5-ground)); }
+  .p5-school > * { --p5-ground: var(--p5-disc); }
+  .p5-past__field { margin-block-start: var(--s-2); }
+  .p5-past__now { display: flex; gap: var(--s-8); align-items: center; margin-block-start: var(--s-4); color: var(--c-type); }
+
+  .p5-rec--sp { align-items: start; }
+  .p5-rec__end { display: flex; flex-direction: column; align-items: flex-end; gap: var(--s-12); }
+  @media (max-width: 639px) { .p5-rec__end { grid-column: 2; flex-direction: row; flex-wrap: wrap; align-items: center; justify-self: start; } }
+  .p5-sticker { display: inline-flex; align-items: center; gap: var(--s-8); min-height: 44px; padding-inline: var(--s-16); border-radius: var(--r-pill);
+    background: var(--c-type); color: var(--c-ground); font-weight: 700; font-size: 14px; text-decoration: none; transform: rotate(-2deg);
+    box-shadow: 0 6px 16px -10px color-mix(in srgb, #000 60%, transparent); transition: transform 180ms var(--ease-arrive); }
+  .p5-rec__end .p5-sticker { background: var(--p5-ground); color: var(--c-type); box-shadow: inset 0 0 0 var(--line-w-strong, 2px) var(--c-type), 0 6px 16px -12px color-mix(in srgb, #000 60%, transparent); }
+  .p5-sticker:hover, .p5-sticker:focus-visible { transform: rotate(0deg) scale(1.03); }
+  .p5-sticker--tag { min-height: 32px; padding-inline: var(--s-12); font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; justify-self: start; align-self: flex-start; }
+  .p5-callout { display: grid; gap: var(--s-12); margin-block-start: var(--s-16); padding: var(--s-24); border-radius: var(--r-6);
+    box-shadow: inset 0 0 0 var(--line-w) var(--c-line); }
+  .p5-past__school { font-weight: 400; color: var(--c-muted); }
+  .p5-past__plus { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; box-shadow: inset 0 0 0 var(--line-w) var(--c-line); color: var(--c-type); }
+  .p5-past__now a { color: var(--c-type); }
+  .p5-give { padding-block: var(--s-8); }
+  .p5-give .p5-sticker--tag { transform: rotate(-3deg); }
+  .p5-started { display: flex; gap: var(--s-8); align-items: center; margin-block-start: var(--s-4); color: var(--c-type); }
+
   /* photo tilt (R-PHO-09): the frame stays put; the picture leans inside it and a light follows the cursor */
   .p5-tilt { perspective: 1400px; }
   .p5-figure__img { position: relative; }
@@ -679,9 +706,12 @@ html, html body { color-scheme: var(--c-scheme); background: var(--c-ground); co
   /* lists */
   .p5-list { margin: 0; padding: 0; list-style: none; }
   .p5-list li { border-block-start: var(--line-w) solid var(--c-line); }
+  .p5-stories { margin-block-end: var(--s-24); }
+  .p5-stories li:last-child { border-block-end: var(--line-w) solid var(--c-line); }
   .p5-list a { display: flex; gap: var(--s-12); align-items: center; min-height: 52px; color: var(--c-type); text-decoration: none; }
   .p5-list a:hover span { text-decoration: underline; }
-  .p5-soon { display: flex; gap: var(--s-12); align-items: center; min-height: 52px; color: var(--c-muted); }
+  .p5-soon { display: flex; gap: var(--s-16); align-items: center; min-height: 64px; padding-block: var(--s-16); color: var(--c-muted); }
+  .p5-soon > svg { flex: none; }
   .p5-soon__tag { margin-inline-start: auto; flex: none; white-space: nowrap; }
   .p5-ledger__row { align-items: center; }
   .p5-ledger__row dt { display: flex; flex-direction: column; align-items: flex-start; gap: var(--s-12); }
@@ -994,8 +1024,8 @@ html, html body { color-scheme: var(--c-scheme); background: var(--c-ground); co
       <div class="p-stack p-col">
         <p class="p-label">Research</p>
         <h2 class="p-h2" id="research-title">See us in Chicago this&nbsp;November.</h2>
-        <p class="p5-pretty">We’re presenting at the American Society of Criminology’s annual meeting. Our work was also accepted at the American Sociological Association, and we’ve given seminars at the University of Florida. More is coming&nbsp;soon.</p>
-        <div class="p-row"><span class="p-chip" data-tone="research"><svg class="p5-icon" aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" focusable="false"><rect x="4" y="5" width="16" height="15" rx="2"></rect><path d="M4 10h16M9 3v4M15 3v4"></path></svg>Chicago · November 2026</span><span class="p-chip" data-tone="research">American Sociological Association · Accepted</span></div>
+        <p class="p5-pretty">We’re presenting at the American Society of Criminology’s annual meeting. We presented a roundtable at the American Sociological Association, and we’ve given seminars at the University of Florida. More is coming&nbsp;soon.</p>
+        <div class="p-row"><span class="p-chip" data-tone="research"><svg class="p5-icon" aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" focusable="false"><rect x="4" y="5" width="16" height="15" rx="2"></rect><path d="M4 10h16M9 3v4M15 3v4"></path></svg>Chicago · November 2026</span><span class="p-chip" data-tone="research">American Sociological Association · Presented</span></div>
         <div class="p-row"><a class="p-btn" data-kind="secondary" href="research.html">See the&nbsp;research</a></div>
       </div>
       <div class="p-stack">
