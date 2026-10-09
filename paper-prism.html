@@ -627,6 +627,8 @@ html, html body { color-scheme: var(--c-scheme); background: var(--c-ground); co
     .p5-pl[aria-pressed="true"] > .p-plate__label, .p5-pl:focus-visible > .p-plate__label { display: block; } }
   .p5-pl:focus-visible { outline: var(--focus-w, 2px) solid var(--c-focus, currentColor); outline-offset: 4px; border-radius: var(--r-6); }
   .p5-pcard .p5-pl { position: relative; z-index: 1; }
+  .p-split > .p5-pl--aside { width: min(100%, 320px); }
+  @media (min-width: 1024px) { .p-split > .p5-pl--aside { justify-self: end; align-self: center; } }
   .p5-pcard__art { position: relative; z-index: 1; display: block; max-width: 320px; }   /* above the card's click area, so the plate keeps its light */
   .p5-pcard__link { color: inherit; text-decoration: none; }
   .p5-pcard__link::after { content: ""; position: absolute; inset: 0; border-radius: inherit; }
@@ -1860,6 +1862,11 @@ html, html body { color-scheme: var(--c-scheme); background: var(--c-ground); co
       L.page.style.transformOrigin = '50% 70%'; L.page.style.transform = 'perspective(900px) rotateY(' + (-(6 + x * 10) * o).toFixed(3) + 'deg)';
       L.ribbon.style.transformOrigin = '78% 55.4%'; L.ribbon.style.transform = 'rotate(' + (x * 6 * o).toFixed(3) + 'deg)';
       L.weather.style.transform = 'translate(' + (-x * 4 * o).toFixed(2) + 'px,' + (-y * 3 * o).toFixed(2) + 'px)';
+    },
+    'metacognition': function (L, x, y, o) {           // thinking about thinking: each head inside turns against the one around it
+      L.big.style.transform = 'translate(' + (-x * 2 * o).toFixed(2) + 'px,' + (-y * 2 * o).toFixed(2) + 'px)';
+      L.mid.style.transformOrigin = '26.5% 28.7%'; L.mid.style.transform = 'rotate(' + (x * 5 * o).toFixed(3) + 'deg)';
+      L.small.style.transformOrigin = '25.6% 22.4%'; L.small.style.transform = 'rotate(' + (-x * 10 * o).toFixed(3) + 'deg) scale(' + (1 + 0.06 * o).toFixed(4) + ')';
     },
     'data-storytelling': function (L, x, y, o) {       // from afar: the public tips back into a plane; the line stands above it
       L.public.style.transform = 'rotateX(' + ((6 + y * 3) * o).toFixed(3) + 'deg) rotateY(' + (x * 2.5 * o).toFixed(3) + 'deg)';
