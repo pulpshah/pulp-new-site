@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://new-site.pulp.com.ai/sitemap.xml
