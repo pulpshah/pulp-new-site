@@ -109,25 +109,26 @@
   function spiral(ctx, W, H, ink, t) {
     var m = Math.min(W, H), cx = W / 2, cy = H / 2, R = m * 0.44, r0 = m * 0.085, unit = m / 1000;
     var pts = [], th = -Math.PI / 2, i;
-    for (i = 0; i < 50; i++) {
-      var q = i / 49, r = r0 + (R - r0) * Math.pow(1 - q, 1.1);
+    var NP = 100;
+    for (i = 0; i < NP; i++) {
+      var q = i / (NP - 1), r = r0 + (R - r0) * Math.pow(1 - q, 1.05);
       pts.push([cx + r * Math.cos(th), cy + r * Math.sin(th), q]);
-      th += (m * 0.034) / r;
+      th += (m * 0.0235) / r;
     }
-    var shown = still ? 50 : Math.min(50, Math.floor(t / 0.055));
+    var shown = still ? NP : Math.min(NP, Math.floor(t / 0.03));
     ctx.strokeStyle = ink; ctx.globalAlpha = 0.25; ctx.lineWidth = 1.5;
     ctx.beginPath();
     for (i = 0; i < shown; i++) { if (i === 0) ctx.moveTo(pts[i][0], pts[i][1]); else ctx.lineTo(pts[i][0], pts[i][1]); }
-    if (shown === 50) ctx.lineTo(cx, cy);
+    if (shown === NP) ctx.lineTo(cx, cy);
     ctx.stroke();
     ctx.globalAlpha = 1; ctx.fillStyle = ink;
     for (i = 0; i < shown; i++) {
-      var age = still ? 1 : Math.min(1, (t - i * 0.055) / 0.35);
+      var age = still ? 1 : Math.min(1, (t - i * 0.03) / 0.3);
       var breathe = still ? 1 : 1 + 0.07 * Math.sin(t * 1.3 + i * 0.4);
-      var rad = (5 + 6 * pts[i][2]) * unit * 1.3 * age * breathe;
+      var rad = (3.6 + 4.6 * pts[i][2]) * unit * 1.3 * age * breathe;
       ctx.beginPath(); ctx.arc(pts[i][0], pts[i][1], Math.max(0, rad), 0, Math.PI * 2); ctx.fill();
     }
-    var tc = still ? 1 : Math.max(0, Math.min(1, (t - 50 * 0.055) / 0.5));
+    var tc = still ? 1 : Math.max(0, Math.min(1, (t - NP * 0.03) / 0.5));
     if (tc > 0) {
       var pop = tc < 1 ? 1 - Math.pow(1 - tc, 3) * Math.cos(tc * 6) : 1 + 0.04 * Math.sin(t * 1.1);
       ctx.fillStyle = '#E6F21A';
