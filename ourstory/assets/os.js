@@ -135,6 +135,97 @@
     }
   }
 
+  /* Milana's page: one fixed vector, and a grid that turns from one basis to another */
+  var FONT = "'Libre Franklin', 'Helvetica Neue', Arial, sans-serif";
+  function basis(ctx, W, H, ink, t) {
+    var blue = '#1398D1', m = Math.min(W, H), u = m / 7.4;
+    var ox = W * 0.26, oy = H * 0.74;
+    var k = still ? 1 : 0.5 - 0.5 * Math.cos(t * 0.5);
+    var e = k * k * (3 - 2 * k);
+    var th = 0.6 * e, sc = 1 + 0.24 * e, sh = 0.32 * e;
+    var b1 = [sc * u * Math.cos(th), sc * u * Math.sin(th)];
+    var b2 = [-sc * u * Math.sin(th + sh) * 0.92, sc * u * Math.cos(th + sh) * 0.92];
+    var v = [3 * u, 2.1 * u];
+    function X(p) { return ox + p[0]; }
+    function Y(p) { return oy - p[1]; }
+    function at(i, j) { return [i * b1[0] + j * b2[0], i * b1[1] + j * b2[1]]; }
+    var i, j, a, b;
+    ctx.strokeStyle = ink; ctx.lineWidth = 1;
+    for (i = -8; i <= 10; i++) {
+      ctx.globalAlpha = i === 0 ? 0.55 : 0.14;
+      a = at(i, -8); b = at(i, 10);
+      ctx.beginPath(); ctx.moveTo(X(a), Y(a)); ctx.lineTo(X(b), Y(b)); ctx.stroke();
+      a = at(-8, i); b = at(10, i);
+      ctx.beginPath(); ctx.moveTo(X(a), Y(a)); ctx.lineTo(X(b), Y(b)); ctx.stroke();
+    }
+    ctx.globalAlpha = 0.7; ctx.fillStyle = ink;
+    for (i = -8; i <= 10; i++) for (j = -8; j <= 10; j++) {
+      a = at(i, j);
+      if (X(a) < -4 || X(a) > W + 4 || Y(a) < -4 || Y(a) > H + 4) continue;
+      ctx.beginPath(); ctx.arc(X(a), Y(a), m / 260, 0, Math.PI * 2); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+    function arrow(p, color, w, head) {
+      var ang = Math.atan2(-p[1], p[0]);
+      ctx.strokeStyle = color; ctx.fillStyle = color; ctx.lineWidth = w; ctx.lineCap = 'round';
+      ctx.beginPath(); ctx.moveTo(ox, oy); ctx.lineTo(X(p) - Math.cos(ang) * head * 0.6, Y(p) - Math.sin(ang) * head * 0.6); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(X(p), Y(p));
+      ctx.lineTo(X(p) - head * Math.cos(ang - 0.42), Y(p) - head * Math.sin(ang - 0.42));
+      ctx.lineTo(X(p) - head * Math.cos(ang + 0.42), Y(p) - head * Math.sin(ang + 0.42));
+      ctx.closePath(); ctx.fill();
+    }
+    arrow(b1, ink, 3, m / 34);
+    arrow(b2, ink, 3, m / 34);
+    arrow(v, blue, m / 80, m / 18);
+    ctx.fillStyle = '#E6F21A'; ctx.strokeStyle = '#191A19'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(X(v), Y(v), m / 42, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+    var det = b1[0] * b2[1] - b2[0] * b1[1];
+    var c1 = (v[0] * b2[1] - b2[0] * v[1]) / det, c2 = (b1[0] * v[1] - v[0] * b1[1]) / det;
+    ctx.fillStyle = ink; ctx.textBaseline = 'alphabetic';
+    ctx.font = '700 ' + Math.round(m / 30) + 'px ' + FONT;
+    ctx.fillText('b₁', X(b1) + 8, Y(b1) + 18);
+    ctx.fillText('b₂', X(b2) - 30, Y(b2) - 8);
+    ctx.fillStyle = blue;
+    ctx.fillText('v = her goals', X(v) + m / 30, Y(v) + m / 90);
+    ctx.fillStyle = ink;
+    ctx.font = '800 ' + Math.round(m / 24) + 'px ' + FONT;
+    ctx.fillText('[v] = (' + c1.toFixed(2) + ', ' + c2.toFixed(2) + ')', m * 0.06, m * 0.1);
+    ctx.font = '600 ' + Math.round(m / 34) + 'px ' + FONT;
+    ctx.globalAlpha = 0.8;
+    ctx.fillText(e < 0.5 ? 'basis: political science' : 'basis: applied math + stats', m * 0.06, m * 0.1 + m / 20);
+    ctx.globalAlpha = 1;
+  }
+
+  /* Milana's page: why at the center, how and what moving outward from it */
+  function circle(ctx, W, H, ink, t, step) {
+    var m = Math.min(W, H), cx = W / 2, cy = H / 2, rings = [0.27, 0.42], x, y, k;
+    ctx.fillStyle = ink;
+    for (y = step / 2; y < H; y += step) {
+      for (x = step / 2; x < W; x += step) {
+        var r = Math.sqrt((x - cx) * (x - cx) + (y - cy) * (y - cy)) / m, v = 0;
+        for (k = 0; k < 2; k++) {
+          var d = (r - rings[k]) / 0.03;
+          var wave = still ? 1 : 0.55 + 0.45 * Math.sin(2 * Math.PI * (r * 3 - t * 0.35));
+          var g = Math.exp(-d * d) * wave;
+          if (g > v) v = g;
+        }
+        var rad = Math.min(1, v) * step * 0.56;
+        if (rad < 0.45) continue;
+        ctx.beginPath(); ctx.arc(x, y, rad, 0, Math.PI * 2); ctx.fill();
+      }
+    }
+    var pulse = still ? 1 : 1 + 0.05 * Math.sin(t * 1.6);
+    ctx.fillStyle = '#E6F21A';
+    ctx.beginPath(); ctx.arc(cx, cy, m * 0.135 * pulse, 0, Math.PI * 2); ctx.fill();
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#191A19'; ctx.font = '850 ' + Math.round(m / 17) + 'px ' + FONT;
+    ctx.fillText('why', cx, cy);
+    ctx.fillStyle = ink; ctx.font = '750 ' + Math.round(m / 26) + 'px ' + FONT;
+    ctx.fillText('how', cx, cy - m * 0.345);
+    ctx.fillText('what', cx, cy - m * 0.482);
+    ctx.textAlign = 'start'; ctx.textBaseline = 'alphabetic';
+  }
+
   function inkFor(el) {
     var v = el.getAttribute('data-ink');
     if (v && v.indexOf('--') === 0) return getComputedStyle(el).getPropertyValue(v).trim() || '#372F5C';
@@ -154,6 +245,8 @@
       ctx.setTransform(S, 0, 0, S, 0, 0);
       ctx.clearRect(0, 0, W, H);
       if (kind === 'spiral') { spiral(ctx, W, H, ink, t); return; }
+      if (kind === 'basis') { basis(ctx, W, H, ink, t); return; }
+      if (kind === 'circle') { circle(ctx, W, H, ink, t, step); return; }
       ctx.fillStyle = ink;
       for (var y = step / 2; y < H; y += step) {
         for (var x = step / 2; x < W; x += step) {
@@ -163,7 +256,11 @@
         }
       }
     }
-    if (still || !canObserve) { draw(kind === 'spiral' ? 99 : 0); return; }
+    if (still || !canObserve) {
+      draw(kind === 'spiral' ? 99 : 0);
+      if (document.fonts && (kind === 'basis' || kind === 'circle')) document.fonts.ready.then(function () { draw(99); });
+      return;
+    }
     function loop(now) {
       if (!visible) { raf = 0; return; }
       if (!t0) t0 = now;
