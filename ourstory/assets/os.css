@@ -313,7 +313,9 @@ a.os-card:hover { transform: translateY(-3px); border-color: var(--thread); }
 
 /* Milana's font: a type tester in her own hand */
 .mk-font { display: grid; grid-template-columns: minmax(0, 1fr); gap: 32px; }
-@media (min-width: 980px) { .mk-font { grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr); column-gap: 56px; align-items: start; } .mk-glyphs, .mk-font__credit { grid-column: 1 / -1; } }
+@media (min-width: 980px) { .mk-font { grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr); column-gap: 56px; align-items: start; } }
+.mk-font__play { display: flex; flex-direction: column; gap: 22px; min-width: 0; }
+@media (min-width: 980px) { .mk-font__play .mk-glyphs { grid-template-columns: repeat(7, minmax(0, 1fr)); } }
 .mk-font__intro { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
 .mk-font__intro p { margin: 0; }
 .mk-type { display: flex; flex-direction: column; gap: 14px; min-width: 0; padding: 22px 24px 20px; background: var(--card); border: 2px solid var(--type); border-radius: 20px; box-shadow: 10px 10px 0 var(--mk-blue); }
@@ -332,8 +334,8 @@ a.os-card:hover { transform: translateY(-3px); border-color: var(--thread); }
 .mk-type__inks button { width: 34px; height: 34px; padding: 0; border-radius: 50%; border: 2px solid var(--ground); background: var(--sw); box-shadow: 0 0 0 1.5px var(--line); cursor: pointer; }
 .mk-type__inks button.is-on { box-shadow: 0 0 0 2.5px var(--type); }
 .mk-type__note { margin: 0; }
-.mk-glyphs { margin: 8px 0 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); gap: 8px; }
-@media (max-width: 600px) { .mk-glyphs { grid-template-columns: repeat(auto-fill, minmax(46px, 1fr)); gap: 6px; } .mk-glyphs li { font-size: 26px; border-radius: 10px; } }
+.mk-glyphs { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); gap: 8px; }
+@media (max-width: 600px) { .mk-glyphs { grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; } .mk-glyphs li { font-size: 26px; border-radius: 10px; } }
 .mk-glyphs li { display: flex; align-items: center; justify-content: center; aspect-ratio: 1; border: 1px solid var(--line); border-radius: 12px; background: var(--card); font-family: 'Milly', var(--f); font-size: 34px; line-height: 1; transition: transform 220ms cubic-bezier(0.3, 1.6, 0.5, 1), background-color 220ms var(--ease), color 220ms var(--ease); }
 .mk-glyphs li:hover { transform: scale(1.18) rotate(-4deg); background: var(--mk-blue); color: #191A19; }
 .mk-font__credit { margin: 0; }
