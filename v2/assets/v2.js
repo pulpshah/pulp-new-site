@@ -208,7 +208,7 @@
       cap.appendChild(document.createTextNode(e.pic.caption + ' '));
       if (e.pic.credit) cap.appendChild(document.createTextNode((e.pic.creditLabel || 'Photo') + ': ' + e.pic.credit + ', ' + e.pic.license + ', printed as halftone by Pulp. '));
       else cap.appendChild(document.createTextNode(e.pic.license + '; printed as halftone by Pulp. '));
-      var a = el('a', '', 'Source'); a.href = e.pic.sourceUrl; a.rel = 'noopener'; cap.appendChild(a);
+      if (e.pic.sourceUrl) { var a = el('a', '', 'Source'); a.href = e.pic.sourceUrl; a.rel = 'noopener'; cap.appendChild(a); }
     }
     var ul = seatDialog.querySelector('.la-dialog__links'); ul.innerHTML = '';
     LA.links.forEach(function (l) {
