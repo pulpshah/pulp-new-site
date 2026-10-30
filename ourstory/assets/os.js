@@ -280,4 +280,29 @@
     });
   }
   document.querySelectorAll('canvas.os-field').forEach(setup);
+
+  /* Milana's type tester: sample lines, letter size and ink */
+  document.querySelectorAll('.mk-type').forEach(function (box) {
+    var input = box.querySelector('.mk-type__input');
+    function grow() { input.style.height = 'auto'; input.style.height = input.scrollHeight + 'px'; }
+    input.addEventListener('input', grow);
+    if (document.fonts) document.fonts.ready.then(grow);
+    grow();
+    box.querySelectorAll('[data-sample]').forEach(function (b) {
+      b.addEventListener('click', function () { input.value = b.getAttribute('data-sample'); grow(); input.focus(); });
+    });
+    var size = box.querySelector('[data-size]');
+    if (size) {
+      size.value = Math.round(parseFloat(getComputedStyle(input).fontSize)) || 64;
+      size.addEventListener('input', function () { box.style.setProperty('--mk-size', size.value + 'px'); grow(); });
+    }
+    var inks = box.querySelectorAll('[data-ink]');
+    inks.forEach(function (b) {
+      b.addEventListener('click', function () {
+        inks.forEach(function (o) { o.classList.remove('is-on'); o.setAttribute('aria-pressed', 'false'); });
+        b.classList.add('is-on'); b.setAttribute('aria-pressed', 'true');
+        box.style.setProperty('--mk-ink-type', b.getAttribute('data-ink'));
+      });
+    });
+  });
 })();
